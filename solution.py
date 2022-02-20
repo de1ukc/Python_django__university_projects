@@ -2,6 +2,7 @@
 
 stopSymbols = ('.',',','?','!',':',';')
 
+
 def repeatOfEveryWord(fileName):
     ans = dict()
 
@@ -11,15 +12,20 @@ def repeatOfEveryWord(fileName):
     text = text.lstrip()  # удаляю пробелы в начале
     text = text.rstrip()  # удаляю пробелы в конце
 
+    #удаляем всё парные знаки, тире. Расшифровываю сокращения в полные слова
     text = text.replace('т.к.','так как',text.count('т.к.'))
     text = text.replace('т.п.','тому подобное',text.count('т.п.'))
     text = text.replace('т.д.', 'так далее', text.count('т.д.'))
     text = text.replace('...', '', text.count('...'))
     text = text.replace('-','',text.count('-'))
+    text = text.replace('(','',text.count('('))
+    text = text.replace(')','',text.count(')'))
+    text = text.replace('"','',text.count('"'))
+    text = text.replace("'",'',text.count("'"))
+    text.replace("/",'',text.count('/'))
 
     listOfWords = text.split()
     outputList = listOfWords.copy()
-    print(listOfWords)
 
     for word in listOfWords:
         symb = word[-1]
@@ -28,17 +34,6 @@ def repeatOfEveryWord(fileName):
                 outputList.remove(word)
                 word = word.replace(symb,'')
                 outputList.append(word)
-        if word[0] == '"' and word[-1] == '"':
-            outputList.remove(word)
-            word = word.replace('"', '', 2)
-            outputList.append(word)
-        if word[0] == '"' or word[-1] == '"':
-            outputList.remove(word)
-            word = word.replace('"','',1)
-            outputList.append(word)
-
-        #переписать говно выше через регулярные выражения
-
 
     for word in outputList:
         if word in ans:
