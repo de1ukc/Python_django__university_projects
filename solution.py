@@ -1,9 +1,11 @@
 import math
+import re
 from statistics import median
 stopSymbols = ('.',',','?','!',':',';')
+stopSymbols2 = (',','?','!',':',';')
 
 #функция будет возвращать словарь с количеством повторений каждого слова
-def repeatOfEveryWord(fileName):
+def RepeatOfEveryWord(fileName):
     ans = dict()
 
     file = open(fileName,'r')
@@ -44,7 +46,7 @@ def repeatOfEveryWord(fileName):
     return ans
 
 #функция записывать полученный словарь ответов в файл
-def repeatOfEveryWordToFile(fileName,dic):
+def RepeatOfEveryWordToFile(fileName,dic):
     file = open(fileName,"w")
     words = dic
 
@@ -55,25 +57,23 @@ def repeatOfEveryWordToFile(fileName,dic):
     file.close()
     return
 
-def averageNumberOfWordsInASentence(fileName):
+def AverageNumberOfWordsInASentence(fileName):
     countOfWords = 0
     countOfSentences = 0
 
-    text = textHelper(fileName)
+    text = TextHelper(fileName)
 
     #получения количества слов.
     buff = text.split()
     countOfWords = len(buff)
     countOfSentences = len(text.split('.')) - 1
-    print(countOfWords)
-    print(countOfSentences)
 
     if countOfSentences == 0:
         return 0
     else:
         return countOfWords/countOfSentences
 
-def averageNumberOfWordsInASentenceToFile(fileName,ans):
+def AverageNumberOfWordsInASentenceToFile(fileName,ans):
     file = open(fileName, "a")
 
     file.write("Среднее количество слов в предложении = " + str(ans))
@@ -82,7 +82,7 @@ def averageNumberOfWordsInASentenceToFile(fileName,ans):
     file.close()
     return
 
-def textHelper(fileName):
+def TextHelper(fileName):
     file = open(fileName, 'r')
 
     text = file.read()
@@ -98,8 +98,10 @@ def textHelper(fileName):
     file.close()
     return text
 
-def medianNumberOfWordsInSentence(fileName):
-    text = textHelper(fileName)
+def MedianNumberOfWordsInSentence(fileName):
+    text = TextHelper(fileName)
+    if text == '':
+        return -1
 
     listOfNumbersForEverySentence = []
 
@@ -122,19 +124,74 @@ def medianNumberOfWordsInSentence(fileName):
 
     return medianAns
 
-def medianNumberOfWordsInSentenceToFile(fileName,ans):
+def MedianNumberOfWordsInSentenceToFile(fileName,ans):
     file = open(fileName,"a")
 
     file.write("Медианное количество слов в предложении = " + str(ans))
-    file.write('\n')
+    file.write("\n\n")
 
     file.close()
     return
 
+def HelpforTopfunc(fileName):
+    text = TextHelper(fileName)
+    text = text.lower()
+    for item in stopSymbols2:
+        text = text.replace(item,'',text.count(item))
+
+    text = text.replace('...', '', text.count('...'))
+    text = text.replace('-', '', text.count('-'))
+    text = text.replace('(', '', text.count('('))
+    text = text.replace(')', '', text.count(')'))
+    text = text.replace('"', '', text.count('"'))
+    text = text.replace("'", '', text.count("'"))
+    text.replace("/", '', text.count('/'))
+    return text
+
+def GetKey(dictionary, value):
+    for key, val in dictionary.items():
+        if val == value:
+            return key
+
+def TopK(fileName,N=4,K=10):
+    text = HelpforTopfunc(fileName)
+    #text = text.replace(item,'',text.count(item)) for item in stopSymbols2  как это провернуть?
+    ans = dict()
+
+    listOfSentences = [sentence.split() for sentence in text.split(".")]
+    for listOfWords in listOfSentences:
+        for word in listOfWords:
+            if len(word) >= N:
+                for i in range(0,len(word) - N + 1):
+                    if word[i: i + N] in ans:
+                        ans[word[i: i + N]] += 1
+                    else:
+                        ans[word[i: i + N]] = 1
+            else:
+                continue
+
+    return ans
+
+def TopKToFile(ans,fileName,K=10):
+    file = open(fileName, "a")
+
+    sortedValues = sorted(ans.values())
+    sortedValues.reverse()
+
+    file.write(f"Топ {K}:" + "\n")
+    for i in range(0, K):
+        file.write(GetKey(ans, sortedValues[i]) + '-' + str(ans[GetKey(ans, sortedValues[i])])+"\n")
+        ans.pop(GetKey(ans, sortedValues[i]))
+
+    file.close()
+    return
+
+
 def main():
-    repeatOfEveryWordToFile("output.txt", repeatOfEveryWord("text.txt")) # количество всех слов в тексте
-    averageNumberOfWordsInASentenceToFile("output.txt",averageNumberOfWordsInASentence("text.txt"))
-    medianNumberOfWordsInSentenceToFile("output.txt",medianNumberOfWordsInSentence("text.txt"))
+    RepeatOfEveryWordToFile("output.txt", RepeatOfEveryWord("text.txt")) # количество всех слов в тексте
+    AverageNumberOfWordsInASentenceToFile("output.txt",AverageNumberOfWordsInASentence("text.txt"))
+    MedianNumberOfWordsInSentenceToFile("output.txt",MedianNumberOfWordsInSentence("text.txt"))
+    TopKToFile(TopK("text2.txt",3,6),"output.txt",6)
 
 if __name__ == "__main__":
    main()
