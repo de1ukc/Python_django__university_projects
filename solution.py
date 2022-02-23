@@ -1,6 +1,5 @@
 import math
-import re
-from statistics import median
+#from statistics import median проверял
 stopSymbols = ('.',',','?','!',':',';')
 stopSymbols2 = (',','?','!',':',';')
 
