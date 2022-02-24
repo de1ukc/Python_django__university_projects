@@ -1,2 +1,2 @@
-# Lab-1-Python
-Студент группы 053506 Осадчий Олег
+Python Repository
+St. Asadchy Aleh 053506
