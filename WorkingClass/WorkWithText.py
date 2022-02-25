@@ -3,13 +3,10 @@ import math
 class WorkWithText:
     '''Класс для работы с входным текстом'''
 
-
-
     def __init__(self) -> None:
         '''Конструктор класса'''
         self.stopSymbols = ['.', ',', '?', '!', ':', ';']
         self.stopSymbols2 = [',', '?', '!', ':', ';']
-
 
         return
 
@@ -72,6 +69,17 @@ class WorkWithText:
         file.close()
         return
 
+    def RepeatOfEveryWordToConsole(self,dic) -> None:
+        '''Функция записывает результат работы аналогичного метода на консоль
+
+        '''
+        words = dic
+
+        for word in words:
+            print(word + ":" + str(words[word]))
+        print('')
+        return
+
     def AverageNumberOfWordsInASentence(self,fileName) -> float:
         '''Функция поодсчитывает среднее количество слов в предложении
         :rtype: float
@@ -101,6 +109,12 @@ class WorkWithText:
         file.write('\n')
 
         file.close()
+        return
+
+    def AverageNumberOfWordsInASentenceToConsole(self, ans) -> None:
+        '''Функция заносит результат аналогичного метода на консоль'''
+
+        print("Среднее количество слов в предложении = " + str(ans)+"\n")
         return
 
     def TextHelper(self,fileName) -> str:
@@ -136,7 +150,8 @@ class WorkWithText:
         listOfNumbersForEverySentence = []
 
         listOfSentences = text.split(".")
-        listOfSentences.remove('')
+        if '' in listOfSentences:
+            listOfSentences.remove('')
 
         for sentense in listOfSentences:
             words = sentense.split()
@@ -163,6 +178,12 @@ class WorkWithText:
         file.write("\n\n")
 
         file.close()
+        return
+
+    def MedianNumberOfWordsInSentenceToConsole(self, ans)-> None:
+        '''Функция заносит результат аналогичного метода на консоль'''
+
+        print("Медианное количество слов в предложении = " + str(ans)+"\n")
         return
 
     def HelpforTopfunc(self,fileName) -> str:
@@ -227,4 +248,17 @@ class WorkWithText:
             ans.pop(self.GetKey(ans, sortedValues[i]))
 
         file.close()
+        return
+
+    def TopKToConsole(self,ans, K=10)-> None:
+        '''Функция заносит результат аналогичного метода на консоль'''
+
+        sortedValues = sorted(ans.values())
+        sortedValues.reverse()
+
+        print(f"Топ {K}:")
+        for i in range(0, K):
+            print(self.GetKey(ans,sortedValues[i]) + '-' + str(sortedValues[i]))
+            ans.pop(self.GetKey(ans, sortedValues[i]))
+        print("\n")
         return
