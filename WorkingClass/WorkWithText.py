@@ -1,7 +1,7 @@
 import math
 
 class WorkWithText:
-    '''Класс для работы с входным текстом'''
+    """Класс для работы с входным текстом"""
 
     def __init__(self) -> None:
         '''Конструктор класса'''
@@ -70,9 +70,7 @@ class WorkWithText:
         return
 
     def RepeatOfEveryWordToConsole(self,dic) -> None:
-        '''Функция записывает результат работы аналогичного метода на консоль
-
-        '''
+        """Функция записывает результат работы аналогичного метода на консоль"""
         words = dic
 
         for word in words:
@@ -81,10 +79,12 @@ class WorkWithText:
         return
 
     def AverageNumberOfWordsInASentence(self,fileName) -> float:
-        '''Функция поодсчитывает среднее количество слов в предложении
+        """Функция поодсчитывает среднее количество слов в предложении
+        :param fileName: name of file
+        :type fileName: str
         :rtype: float
         :return: Среднее число слов в предложении
-        '''
+        """
 
         countOfWords = 0
         countOfSentences = 0
@@ -102,7 +102,12 @@ class WorkWithText:
             return countOfWords / countOfSentences
 
     def AverageNumberOfWordsInASentenceToFile(self,fileName, ans) -> None:
-        '''Функция заносит результат аналогичного метода в файл'''
+        """Функция заносит результат аналогичного метода в файл
+        :param fileName : name of file
+        :type fileName: str
+        :param ans : average number of words in sentence
+        :type ans: float
+        """
         file = open(fileName, "a")
 
         file.write("Среднее количество слов в предложении = " + str(ans))
@@ -112,16 +117,21 @@ class WorkWithText:
         return
 
     def AverageNumberOfWordsInASentenceToConsole(self, ans) -> None:
-        '''Функция заносит результат аналогичного метода на консоль'''
+        """Функция заносит результат аналогичного метода на консоль
+        :param ans : average number of words in sentence
+        :type ans: float
+        """
 
         print("Среднее количество слов в предложении = " + str(ans)+"\n")
         return
 
     def TextHelper(self,fileName) -> str:
-        '''Функция чистит текст от лишних символов. ? ! ... Также раскрывает сокращения согласно правилам
+        """Функция чистит текст от лишних символов. ? ! ... Также раскрывает сокращения согласно правилам
+        :param fileName : name of file
+        :type fileName: str
         :rtype: str
         :return: Выходная строка - почищенный текст
-        '''
+        """
 
         file = open(fileName, 'r')
 
@@ -139,9 +149,12 @@ class WorkWithText:
         return text
 
     def MedianNumberOfWordsInSentence(self,fileName) -> int:
-        '''Функция подсчитывает медианное количество слов в предложении
+        """Функция подсчитывает медианное количество слов в предложении
+        :param fileName: name of file
+        :type fileName:str
         :rtype:int
-        :return: Медианное число слов в предложении'''
+        :return: Медианное число слов в предложении
+        """
 
         text = self.TextHelper(fileName)
         if text == '':
@@ -171,7 +184,12 @@ class WorkWithText:
         return medianAns
 
     def MedianNumberOfWordsInSentenceToFile(self,fileName, ans)-> None:
-        '''Функция заносит результат аналогичного метода в файл'''
+        """Функция заносит результат аналогичного метода в файл
+        :param fileName: name of file
+        :type fileName: str
+        :param ans: median number of words in sentence
+        :type ans: int
+        """
         file = open(fileName, "a")
 
         file.write("Медианное количество слов в предложении = " + str(ans))
@@ -181,13 +199,18 @@ class WorkWithText:
         return
 
     def MedianNumberOfWordsInSentenceToConsole(self, ans)-> None:
-        '''Функция заносит результат аналогичного метода на консоль'''
+        """Функция заносит результат аналогичного метода на консоль
+        :param ans: median number of words in sentence
+        :type ans: int
+        """
 
         print("Медианное количество слов в предложении = " + str(ans)+"\n")
         return
 
     def HelpforTopfunc(self,fileName) -> str:
         '''Функция подчищает текст в помощь основной чистящей функции. Она убирает парные знаки, которые для работы в поставленном ТЗ не нужны.
+        :param fileName: name of file
+        :type: str
         :rtype:str'''
         text = self.TextHelper(fileName)
         text = text.lower()
@@ -205,6 +228,8 @@ class WorkWithText:
 
     def GetKey(self,dictionary, value)->str:
         '''Функция реализована для поиска ключа по значению в словаре.
+        :param dictionary: dictionary with keys to find
+        :type dictionary: dict
         :rtype: str
         :return: Возращает ключ(строку)'''
         for key, val in dictionary.items():
@@ -212,9 +237,15 @@ class WorkWithText:
                 return key
 
     def TopK(self,fileName, N=4, K=10):
-        '''Функция возвращает словарь самых популярных N-грамм в тексте
+        """Функция возвращает словарь самых популярных N-грамм в тексте
+        :param fileName: name of file
+        :type fileName: str
+        :param N: number of symbols in N-gramm
+        :type N; int
+        :param K: number of Top-K
+        :type K: int
         :rtype:dict
-        :return: Словарь самых популярных N-грамм'''
+        :return: Словарь самых популярных N-грамм"""
 
         text = self.HelpforTopfunc(fileName)
         # text = text.replace(item,'',text.count(item)) for item in stopSymbols2  как это провернуть?
@@ -235,7 +266,13 @@ class WorkWithText:
         return ans
 
     def TopKToFile(self,ans, fileName, K=10)-> None:
-        '''Функция заносит результат аналогичного метода в файл'''
+        """Функция заносит результат аналогичного метода в файл
+        :param ans : dictionary with N-gramms
+        :type ans: dict
+        :param fileName: name of file
+        :type fileName: str
+        :param K: number of Top-K
+        :type K: int"""
 
         file = open(fileName, "a")
 
@@ -251,7 +288,11 @@ class WorkWithText:
         return
 
     def TopKToConsole(self,ans, K=10)-> None:
-        '''Функция заносит результат аналогичного метода на консоль'''
+        """Функция заносит результат аналогичного метода на консоль
+        :param ans : dictionary with N-gramms
+        :type ans: dict
+        :param K: number of Top-K
+        :type K: int"""
 
         sortedValues = sorted(ans.values())
         sortedValues.reverse()
