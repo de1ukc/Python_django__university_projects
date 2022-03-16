@@ -6,9 +6,6 @@ from WorkingClass.constants import stop_symbols2
 class WorkWithText:
     """Класс для работы с входным текстом"""
 
-    def __init__(self) -> None:
-        return
-
     def repeat_of_every_word(self, file_name: str) -> dict:
         """
         Метод нахождения количества повторений каждого слова в тексте.
@@ -339,3 +336,5 @@ class WorkWithText:
         print("\n")
 
         return
+
+
