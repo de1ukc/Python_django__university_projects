@@ -1,16 +1,16 @@
 import pathlib
 from pathology.path import Path
 from Factory import SerializerFactory
-from TerminalArguments.AddArguments import add_arguments
+import json
 
 script_dir = Path.script_dir()
 
+a = dict()
+a["Aleh"] = "Oleg"
 
 def main() -> None:
     
-    # print(type(serializer))
-    print(script_dir)
-    pass
+    print(json.dumps(a))
 
 
 if __name__ == "__main__":
