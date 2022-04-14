@@ -13,3 +13,6 @@ class TOMLSerializer(Serializer):
 
     def loads(self):
         pass
+
+
+# Разрешено использование встроенных реализаций TOML
