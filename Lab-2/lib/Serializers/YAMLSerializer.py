@@ -1,4 +1,4 @@
-from Serializer import Serializer
+from lib.Serializers.Serializer import Serializer
 
 
 class YAMLSerializer(Serializer):
