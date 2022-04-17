@@ -1,5 +1,6 @@
 import re
 
+
 from lib.Serializers.Serializer import Serializer
 
 
@@ -9,70 +10,158 @@ class JSONSerializer(Serializer):
 
     @staticmethod
     def dumps(obj) -> str:
-        object_type = re.search("\'(\w+)\'", str(type(obj)))[1]
+        serialized = []
+        keys = []
+        response = ""
 
-        response = {}
+        if isinstance(obj, (list, tuple)):
+            for item in obj:
+                serialized.append(JSONHelper.help_dumps(item))
 
-        if object_type == 'tuple':
-            pass
+            response = ", ".join(serialized)
+            response = "[" + response + "]"
+        elif isinstance(obj, (float, int, bool, str)):
+            response = JSONHelper.help_dumps(obj)
 
+        elif isinstance(obj, dict):
+            response = "{" + response
 
+            for key in obj:
+                if isinstance(key, (int, float, bool)) or key is None: # оборчиваю численные аргументы в ковычки
+                    response += "\"" + JSONHelper.help_dumps(key) + "\"" + ": " + JSONHelper.help_dumps(obj[key]) + ", "
+                else:
+                    response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key])+", "
+            response = response[:len(response) - 2] + "}" # убираю последнюю запятую с пробелом
+        return response
 
     def load(self):
         pass
+    @staticmethod
+    def loads(serialized_str: str) -> object:
+        obj = JSONHelper.help_loads(serialized_str)
 
-    def loads(self):
-        pass
+        return obj
 
 
 class JSONHelper:
-    """В данном классе будет находиться основная логика сериализации.
-    Класс будет разбивать объекты для джейсона в кортежи и пихать это в один конечный словарь.
-    Сам класс JSONSerializer будет лишь оборачивать в строку конечный результат, то есть, словарь.
-    """
-    @staticmethod
-    def get_obj_in_tuples(obj) -> tuple:
-        """Рекурсивная функция. Получает объект, потом проверяет его тип. В случае словаря,
-        запускается рекурсия и словарь разбивается на подобъекты. По итогу возвращается кортеж кортежей"""
-        response_dict = dict()  # промежуточный словарь ответов. После будет преобразован в кортеж
-
-        object_type = re.search("\'(\w+)\'", str(type(obj)))[1]
-
-
-        if isinstance(obj, (int, str, float, bool)):
-            response_dict["type"] = object_type  # сюда должно идти, судя по всему, название поля, в случае сериализации
-                                                 # просто цифры ничего не должно идти
-            response_dict["value"] = obj
-        elif isinstance(obj, tuple):
-            response_dict["type"] = object_type
-
-            response_dict["value"] = tuple([JSONHelper.get_obj_in_tuples(tuple_object) for tuple_object in obj])
-            # если сериализумем кортеж, то он превращается в список, то же самое и с вложенными кортежами
-
-        response = tuple((key, response_dict[key]) for key in response_dict)  # будет возвращать кортеж с кортежами ключей и значений, которые потом будут сериализоваться
-
-
-        return response
 
     @staticmethod
-    def recursive_parse(obj: tuple) -> str:
+    def help_dumps(obj) -> str:
+        if isinstance(obj, (bool, float, int)):
+            return str(obj).lower()
+        elif isinstance(obj, str):
+            return "\"" + obj + "\""
+        elif obj is None:
+            return "null"
+        elif isinstance(obj, (tuple, list)):
+            serialized = []
+            response = ""
 
-        tuples = JSONHelper.get_obj_in_tuples(obj)
+            for item in obj:
+                serialized.append(JSONHelper.help_dumps(item))
 
-        object_type = re.search("\'(\w+)\'", str(type(obj)))[1]
+            response = ", ".join(serialized)
+            response = "[" + response + "]"
 
-        if object_type == "tuple":
-            response = []
+            return response
 
-            response.append(JSONHelper.recursive_parse())
+        elif isinstance(obj, dict):
+            response = "{"
+
+            for key in obj:
+                response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key]) + ", "
+
+            response = response[:len(response) - 2] + "}"  # убираю последнюю запятую с пробелом
+
+            return response
+
+    @staticmethod
+    def help_loads(string: str):
+        answer = None
+
+        if string[0] == "[":
+            answer = []
+            #print(sys.getrecursionlimit())
+            buffer_string = ""
+
+            string = string[1:len(string) - 1]
+
+            for item in string:
+                if item == "[" or item == "{":
+                    resp = JSONHelper.help_loads(string[string.index(item) + 1:])
+                    answer.append(resp)
+                    to_delete = str(resp).replace("'",'"',str(resp).count("'"))
+                    item = string[string.index(item) - 1]
+                    string.__iter__ = string.replace(to_delete,"").__iter__()
+                    continue
+                elif item == "]" or item == "}":
+                    return answer
+                elif item == '"' or item == "'" or item == " ":
+                    continue
+                elif item != "," and item != " ":
+                    buffer_string += item
+                else:
+                    if buffer_string.isdecimal():
+                        answer.append(int(buffer_string))
+                    elif JSONHelper.is_float(buffer_string):
+                        answer.append(float(buffer_string))
+                    elif buffer_string == 'true':
+                        answer.append(True)
+                    elif buffer_string == 'false':
+                        answer.append(False)
+                    elif buffer_string == 'null':
+                        answer.append(None)
+                    else:
+                        answer.append(buffer_string)
+                    buffer_string = ""
+        elif string[0] == "{":
+            pass
+        else:
+            buffer_string = ""
+            answer = []
+
+            for item in string:
+                if item == "[" or item == "{":
+                    answer.append(JSONHelper.help_loads(string[string.index(item) + 1:]))
+
+                elif item == "]" or item == "}":
+                    answer.append(buffer_string)
+                    return answer
+
+                elif item == '"' or item == "'" or item == " ":
+                    continue
+
+                elif item != "," and item != " ":
+                    buffer_string += item
+                else:
+                    if buffer_string.isdecimal():
+                        answer.append(int(buffer_string))
+                    elif JSONHelper.is_float(buffer_string):
+                        answer.append(float(buffer_string))
+                    elif buffer_string == 'true':
+                        answer.append(True)
+                    elif buffer_string == 'false':
+                        answer.append(False)
+                    elif buffer_string == 'null':
+                        answer.append(None)
+                    else:
+                        answer.append(buffer_string)
+                    buffer_string = ""
+
+        return answer
+
+    def is_float(num):
+        try:
+            float(num)
+            return True
+        except ValueError:
+            return False
 
 
-        elif isinstance(obj, (int, float, bool, str)):
-            return f"{str(obj)}"
 
 
 
 
-        pass
+
 
 
