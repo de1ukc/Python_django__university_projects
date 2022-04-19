@@ -38,7 +38,7 @@ class JSONSerializer(Serializer):
         pass
     @staticmethod
     def loads(serialized_str: str) -> object:
-        obj = JSONHelper.help_loads(serialized_str)
+        obj = JSONHelper.loads(serialized_str)
 
         return obj
 
@@ -69,95 +69,292 @@ class JSONHelper:
             response = "{"
 
             for key in obj:
-                response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key]) + ", "
+                if isinstance(key, (int, float)):
+                    response += '"' + JSONHelper.help_dumps(key) + '"' + ": " + JSONHelper.help_dumps(obj[key]) + ", "
+                else:
+                    response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key]) + ", "
 
             response = response[:len(response) - 2] + "}"  # убираю последнюю запятую с пробелом
 
             return response
 
+
     @staticmethod
-    def help_loads(string: str):
-        answer = None
+    def loads(json_string: str) -> object:
+        def loads_list(string_to_list: str) -> (list, str):
+            ans = []
+            i = 0
+            border = len(string_to_list)
+            number_in_str = False
+            buffer_str = ""
 
-        if string[0] == "[":
-            answer = []
-            #print(sys.getrecursionlimit())
-            buffer_string = ""
+            while i < border:
+                if string_to_list[i] == "[":
+                    resp = loads_list(string_to_list[i + 1:])
+                    ans.append(resp[0])
+                    string_to_list = resp[1]
+                    border = len(string_to_list)
+                    i = - 1
+                elif string_to_list[i] == "]":
+                    if buffer_str != "":
+                        if is_float(buffer_str):
+                            if number_in_str:
+                                ans.append(buffer_str)
+                                number_in_str = False
+                            else:
+                                ans.append(float(buffer_str))
+                        elif buffer_str.isdigit():
+                            if number_in_str:
+                                ans.append(buffer_str)
+                            else:
+                                ans.append(int(buffer_str))
+                            number_in_str = False
+                        elif buffer_str == "true":
+                            ans.append(True)
+                        elif buffer_str == "false":
+                            ans.append(False)
+                        elif buffer_str == "null":
+                            ans.append(None)
+                        else:
+                            ans.append(buffer_str)
 
-            string = string[1:len(string) - 1]
+                    return (ans, string_to_list[i + 1:])
 
-            for item in string:
-                if item == "[" or item == "{":
-                    resp = JSONHelper.help_loads(string[string.index(item) + 1:])
-                    answer.append(resp)
-                    to_delete = str(resp).replace("'",'"',str(resp).count("'"))
-                    item = string[string.index(item) - 1]
-                    string.__iter__ = string.replace(to_delete,"").__iter__()
-                    continue
-                elif item == "]" or item == "}":
-                    return answer
-                elif item == '"' or item == "'" or item == " ":
-                    continue
-                elif item != "," and item != " ":
-                    buffer_string += item
+
+                elif string_to_list[i] == "{":
+                    resp = loads_dict(string_to_list[i + 1:])
+                    ans.append(resp[0])
+                    string_to_list = resp[1]
+                    border = len(string_to_list)
+                    i = - 1
+                # elif: # проверка на функцию
+                # elif: # проверка на класс
+
                 else:
-                    if buffer_string.isdecimal():
-                        answer.append(int(buffer_string))
-                    elif JSONHelper.is_float(buffer_string):
-                        answer.append(float(buffer_string))
-                    elif buffer_string == 'true':
-                        answer.append(True)
-                    elif buffer_string == 'false':
-                        answer.append(False)
-                    elif buffer_string == 'null':
-                        answer.append(None)
+
+                    if string_to_list[i].isdigit():
+                        buffer_str += string_to_list[i]
+                    elif string_to_list[i] == ".":
+                        if string_to_list[i - 1].isdigit():
+                            buffer_str += string_to_list[i]
+                        else:
+                            pass
+                    elif string_to_list[i] == " ":
+                        if string_to_list[i - 1] != ",":
+                            buffer_str += string_to_list[i]
+                            i += 1
+                            continue
+                        if is_float(buffer_str):
+                            if number_in_str:
+                                ans.append(buffer_str)
+                                number_in_str = False
+                            else:
+                                ans.append(float(buffer_str))
+                        elif buffer_str.isdigit():
+                            if number_in_str:
+                                ans.append(buffer_str)
+                                number_in_str = False
+                            else:
+                                ans.append(int(buffer_str))
+                        elif buffer_str == "":
+                            pass
+                        elif buffer_str == "true":
+                            ans.append(True)
+                        elif buffer_str == "false":
+                            ans.append(False)
+                        elif buffer_str == "null":
+                            ans.append(None)
+                        else:
+                            ans.append(buffer_str)
+                        buffer_str = ""
+                        i += 1
+                        continue
+                    elif string_to_list[i] == ',':
+                        i += 1
+                        continue
+                    elif string_to_list[i] == '"':
+                        if string_to_list[i + 1].isdigit():
+                            number_in_str = True
+                        i += 1
+                        continue
                     else:
-                        answer.append(buffer_string)
-                    buffer_string = ""
-        elif string[0] == "{":
+                        buffer_str += string_to_list[i]
+                i += 1
+
+        def loads_dict(string_to_dict: str) -> (dict, str):
+            ans = {}
+            i = 0
+            border = len(string_to_dict)
+            buffer_value = ""
+            buffer_key = ""
+            number_in_str = False
+            is_key = True
+
+            while i < border:
+
+                if string_to_dict[i] == "{":
+                    resp = loads_dict(string_to_dict[i + 1:])
+                    ans[buffer_key] = resp[0]
+                    string_to_dict = resp[1]
+                    border = len(string_to_dict)
+                    i = -1
+                    buffer_value = ""
+                    buffer_key = ""
+                elif string_to_dict[i] == "[":
+                    resp = loads_list(string_to_dict[i + 1:])
+                    ans[buffer_key] = resp[0]
+                    string_to_dict = resp[1]
+                    border = len(string_to_dict)
+                    i = -1
+                    buffer_value = ""
+                    buffer_key = ""
+                elif string_to_dict[i] == "}":
+                    if buffer_key != "" and buffer_value != "":
+
+                        if buffer_key == "false":
+                            buffer_key = False
+                        elif buffer_key == "true":
+                            buffer_key = True
+                        elif buffer_key == "null":
+                            buffer_key = None
+
+                        if buffer_value.isdigit():
+                            buffer_value = int(buffer_value)
+                        elif is_float(buffer_value):
+                            buffer_value = float(buffer_value)
+                        elif buffer_value == "false":
+                            buffer_value = False
+                        elif buffer_value == "true":
+                            buffer_value = True
+                        elif buffer_value == "null":
+                            buffer_value = None
+                        ans[buffer_key] = buffer_value
+
+                    return ans, string_to_dict[i + 1:]
+                else:
+                    if string_to_dict[i] == '"':
+                        i += 1
+                        continue
+                    elif string_to_dict[i] == ":":
+                        is_key = False
+                        i += 1
+                        continue
+
+                    elif string_to_dict[i] == ",":
+
+                        if buffer_key == "false":
+                            buffer_key = False
+                        elif buffer_key == "true":
+                            buffer_key = True
+                        elif buffer_key == "null":
+                            buffer_key = None
+
+                        if buffer_value.isdigit():
+                            buffer_value = int(buffer_value)
+                        elif is_float(buffer_value):
+                            buffer_value = float(buffer_value)
+                        elif buffer_value == "false":
+                            buffer_value = False
+                        elif buffer_value == "true":
+                            buffer_value = True
+                        elif buffer_value == "null":
+                            buffer_value = None
+                        if buffer_value != "" and buffer_key != "":
+                            ans[buffer_key] = buffer_value
+                        buffer_value = ""
+                        buffer_key = ""
+                        is_key = True
+                        i += 1
+                        continue
+                    elif string_to_dict[i] == " ":
+                        if string_to_dict[i - 1] != "," and string_to_dict[i - 1] != ":":
+                            if is_key:
+                                buffer_key += string_to_dict[i]
+                            else:
+                                buffer_value += string_to_dict[i]
+                        i += 1
+                        continue
+                    else:
+                        if is_key:
+                            buffer_key += string_to_dict[i]
+                        else:
+                            buffer_value += string_to_dict[i]
+                i += 1
+
+        def loads_primitives(string_to_prim: str) -> (object, str):
             pass
+
+        def is_float(s):
+            result = False
+            if s.count(".") == 1:
+                if s.replace(".", "").isdigit():
+                    result = True
+            return result
+
+        ######################################################################################
+        ######################################################################################
+        ######################################################################################
+        # int в кортеже возврата - индекс, по который нужно обрезать строку
+
+        if json_string[0] == "[":
+            response = []
+        elif json_string[0] == "{":
+            response = {}
         else:
-            buffer_string = ""
-            answer = []
+            response = None
 
-            for item in string:
-                if item == "[" or item == "{":
-                    answer.append(JSONHelper.help_loads(string[string.index(item) + 1:]))
+        i = -1
+        border = len(json_string)
+        simple_type_ans = ""
 
-                elif item == "]" or item == "}":
-                    answer.append(buffer_string)
-                    return answer
+        while i < border:
+            i += 1
 
-                elif item == '"' or item == "'" or item == " ":
-                    continue
-
-                elif item != "," and item != " ":
-                    buffer_string += item
-                else:
-                    if buffer_string.isdecimal():
-                        answer.append(int(buffer_string))
-                    elif JSONHelper.is_float(buffer_string):
-                        answer.append(float(buffer_string))
-                    elif buffer_string == 'true':
-                        answer.append(True)
-                    elif buffer_string == 'false':
-                        answer.append(False)
-                    elif buffer_string == 'null':
-                        answer.append(None)
-                    else:
-                        answer.append(buffer_string)
-                    buffer_string = ""
-
-        return answer
-
-    def is_float(num):
-        try:
-            float(num)
-            return True
-        except ValueError:
-            return False
-
-
+            if simple_type_ans != "" and i == border:
+                if simple_type_ans.isdigit():
+                    response = int(simple_type_ans)
+                elif is_float(simple_type_ans):
+                    response = float(simple_type_ans)
+                elif simple_type_ans == "false":
+                    response = False
+                elif simple_type_ans == "true":
+                    response = True
+                elif simple_type_ans == "null":
+                    response = None
+                if simple_type_ans[0] == '"' and simple_type_ans[-1] == '"':
+                    response = simple_type_ans[1:-1]
+                return response
+            if json_string == "":
+                if isinstance(response, list):
+                    return response[0]
+                if isinstance(response, dict):
+                    return response["ans"]
+            elif json_string[i] == "[":
+                if isinstance(response, list):
+                    resp = loads_list(json_string[i + 1:])
+                    response.append(resp[0])
+                    json_string = resp[1]
+                    border = len(json_string)
+                    i = -1
+                elif isinstance(response, dict):  # ?????? не уверен
+                    resp = loads_dict(json_string[i + 1:])
+                    response["ans"] = resp[0]
+                    json_string = resp[1]
+                    border = len(json_string)
+                    i = -1
+            elif json_string[i] == "]":  # ??? зачем?
+                pass
+            elif json_string[i] == "{":
+                resp = loads_dict(json_string[i + 1:])
+                response["ans"] = resp[0]
+                json_string = resp[1]
+                border = len(json_string)
+                i = -1
+            elif json_string[i] == "}":
+                return response["ans"]
+            else:
+                simple_type_ans += json_string[i]
+        return response
 
 
 
