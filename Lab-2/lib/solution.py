@@ -94,6 +94,12 @@ def main() -> None:
 
     my_obj = [11, 12.43, {"sd":{12:[34, 64, 24, "Suka"]}}, (123, 42, 123, "__init__"), {3:{2:{2:{3:{1:{1:{2:{1: 111},2: 121},2: "121"},2: "321"},2: "+++"},2: "121@"},2: ";lkjuytrewsa"},2: ["jhgfgh", 5434543, ("fdgdf", 424)]},1]
     my_ser = serializer.dumps(my_obj)
+    print(my_obj)
+    serializer.dump(my_obj, "../Files/JSONSerialize")
+    print("TRY LOAD")
+    objjj = serializer.load("../Files/JSONSerialize")
+    print(objjj)
+    print(objjj == json.load(open("../Files/JSONSerialize")))
     print("My ser:")
     print(my_ser)
 
@@ -112,6 +118,35 @@ def main() -> None:
 
     print(my_deser == json.loads(json.dumps(my_obj)))
 
+    d = {'__closure__': None, '__code__': {'TYPE': 'code',
+                                           'VALUE': {'__doc__': 'Create a code object.  Not for the faint of heart.',
+                                                     'co_argcount': 2, 'co_cellvars': {'TYPE': 'tuple', 'VALUE': []},
+                                                     'co_code': {'TYPE': 'bytes',
+                                                                 'VALUE': [124, 0, 124, 1, 23, 0, 83, 0]},
+                                                     'co_consts': {'TYPE': 'tuple', 'VALUE': [None]},
+                                                     'co_filename': '/home/de1ukc/Programming/OtherProjects/MyPython/serializer/main.py',
+                                                     'co_firstlineno': 182, 'co_flags': 67,
+                                                     'co_freevars': {'TYPE': 'tuple', 'VALUE': []},
+                                                     'co_kwonlyargcount': 0,
+                                                     'co_linetable': {'TYPE': 'bytes', 'VALUE': [8, 1]},
+                                                     'co_lnotab': {'TYPE': 'bytes', 'VALUE': [0, 1]}, 'co_name': 'sm',
+                                                     'co_names': {'TYPE': 'tuple', 'VALUE': []}, 'co_nlocals': 2,
+                                                     'co_posonlyargcount': 0, 'co_stacksize': 2,
+                                                     'co_varnames': {'TYPE': 'tuple', 'VALUE': ['a', 'b']}}},
+         '__globals__': {}, '__defaults__': None, '__name__': 'sm'}
+
+    aba = serializer.dumps(d)
+    baba = serializer.loads(aba)
+    print("HERE")
+    print(d)
+    "SER"
+    print(aba)
+    print("DESER")
+    print(baba)
+    print(baba == d)  # исходнный словарь ( разобраная функция) совпал с джсоном при сериализации и совпал с исходным объектом(словарём) при десериализзации.
+    caba = json.dumps(d)
+    print(caba)
+    print(aba == caba)
 
 if __name__ == "__main__":
     main()

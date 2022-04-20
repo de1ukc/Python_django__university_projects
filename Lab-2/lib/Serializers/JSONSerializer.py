@@ -5,8 +5,14 @@ from lib.Serializers.Serializer import Serializer
 
 
 class JSONSerializer(Serializer):
-    def dump(self):
-        pass
+
+    @staticmethod
+    def dump(obj: object, file_name: str):
+        string = JSONSerializer.dumps(obj)
+
+        with open(file_name, "w") as file:
+            file.write(string)
+
 
     @staticmethod
     def dumps(obj) -> str:
@@ -34,8 +40,12 @@ class JSONSerializer(Serializer):
             response = response[:len(response) - 2] + "}" # убираю последнюю запятую с пробелом
         return response
 
-    def load(self):
-        pass
+    @staticmethod
+    def load(file_name) -> object:
+        with open(file_name, "r") as file:
+            obj = JSONSerializer.loads(file.read())
+        return obj
+
     @staticmethod
     def loads(serialized_str: str) -> object:
         obj = JSONHelper.loads(serialized_str)
@@ -66,6 +76,10 @@ class JSONHelper:
             return response
 
         elif isinstance(obj, dict):
+
+            if not obj:  # если пустой
+                return "{}"
+
             response = "{"
 
             for key in obj:
