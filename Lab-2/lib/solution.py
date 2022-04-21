@@ -38,6 +38,13 @@ def main() -> None:
     print(deser_func.__getattribute__("__name__"))
     print(pupa_lupa())
 
+    lst = [1,pupa_lupa]
+    aaa = serializer.dumps(lst)
+    ans2 = serializer.loads(aaa)
+    print(ans2[1]())
+
+
+
 
 
 if __name__ == "__main__":

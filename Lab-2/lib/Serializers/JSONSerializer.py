@@ -30,10 +30,40 @@ class JSONSerializer(Serializer):
         response = ""
 
         if isinstance(obj, (list, tuple)):
+            func = [item for item in obj if inspect.isroutine(item)]  # для листов
+            for item in obj:
+                if item in func:
+                    obj.remove(item)
+
+            buff_dict = {}
+            for item in obj:
+                if isinstance(item, dict):
+                    for key in item:
+                        if inspect.isroutine(item[key]):
+                            buff_dict[key] = JSONSerializer.dumps(item[key])
+
+            for item in buff_dict:
+                for it in obj:
+                    if isinstance(it, dict):
+                        del it[item]
+
+            for item in obj:
+                if isinstance(item, dict):
+                    if len(item) == 0:
+                        obj.remove(item)
+
+            functions_dict = [JSONSerializer.dumps(item) for item in func]
+
             for item in obj:
                 serialized.append(JSONHelper.help_dumps(item))
 
+            for item in functions_dict:
+                serialized.append(item)
+
             response = ", ".join(serialized)
+
+            for item in buff_dict:
+                response += ", \"" + str(item) + "\""  + ": " + buff_dict[item]
             response = "[" + response + "]"
         elif isinstance(obj, (float, int, bool, str)):
             response = JSONHelper.help_dumps(obj)
@@ -58,7 +88,6 @@ class JSONSerializer(Serializer):
 
             resp = JSONSerializer.dumps(ans)
             response  = resp
-
         return response
 
     @staticmethod
@@ -70,6 +99,18 @@ class JSONSerializer(Serializer):
     @staticmethod
     def loads(serialized_str: str) -> object:
         obj = JSONHelper.loads(serialized_str)
+
+        for item in obj:
+            if isinstance(item, dict):
+                if "__closure__" in item:
+                    buff = JSONHelper.deser_func(item)
+                    if isinstance(obj, list):
+                        obj.remove(item)
+                        obj.append(buff)
+                    elif isinstance(obj, tuple):
+                        del obj[item]
+                        obj[item] = buff
+        # осталось заменить этот словарь на буфф
 
         return obj
 
@@ -104,11 +145,21 @@ class JSONHelper:
 
             response = "{"
 
+            buff_dict = {}
+          #  for key in obj:
+            #    if inspect.isroutine(obj[key]):
+            #        buff_dict[key] = JSONSerializer.dumps(obj[key])
+               #     del obj[key]
+
+
             for key in obj:
                 if isinstance(key, (int, float)):
                     response += '"' + JSONHelper.help_dumps(key) + '"' + ": " + JSONHelper.help_dumps(obj[key]) + ", "
                 else:
-                    response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key]) + ", "
+                    if key == "factory":
+                        response += JSONHelper.help_dumps(key) + ": " + str(obj[key]) + ", "
+                    else:
+                        response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key]) + ", "
 
             response = response[:len(response) - 2] + "}"  # убираю последнюю запятую с пробелом
 
