@@ -1,5 +1,7 @@
 import inspect
+import modulefinder
 import re
+from importlib import import_module
 from pprint import pprint
 from types import FunctionType, CodeType
 
@@ -418,9 +420,6 @@ class JSONHelper:
             if attr[0] == "__code__":
                 ans[attr[0]] = get_code_dict(attr[1])
             else:
-               # if attr[0] == "__globals__":
-               #     ans[attr[0]] = {}
-               # else:
                 ans[attr[0]] = attr[1]
         return ans
 
@@ -445,6 +444,13 @@ class JSONHelper:
 
         for name, obj in func_dict["__globals__"].items():
             glob[name] = obj
+
+        for key in glob:
+            if isinstance(glob[key], str):
+                if glob[key].find('module') and not key.startswith('__') and key != "factory" and key != "JSONHelper" \
+                        and key != str_dict["__name__"]  and key != "main":
+                    glob[key] = import_module(key)
+
         det.append(glob)
 
         for attr in FUNCTION_ATTRIBUTES:
