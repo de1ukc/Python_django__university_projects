@@ -1,4 +1,10 @@
+import inspect
 import re
+from pprint import pprint
+from types import FunctionType, CodeType
+
+from lib.Serializers.Attributes import FUNCTION_ATTRIBUTES
+from lib.Serializers.Attributes import CODE_ARGUMENTS
 
 
 from lib.Serializers.Serializer import Serializer
@@ -18,6 +24,7 @@ class JSONSerializer(Serializer):
     def dumps(obj) -> str:
         serialized = []
         keys = []
+
         response = ""
 
         if isinstance(obj, (list, tuple)):
@@ -30,6 +37,9 @@ class JSONSerializer(Serializer):
             response = JSONHelper.help_dumps(obj)
 
         elif isinstance(obj, dict):
+            if not obj:  # если пустой
+                return "{}"
+
             response = "{" + response
 
             for key in obj:
@@ -38,6 +48,15 @@ class JSONSerializer(Serializer):
                 else:
                     response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key])+", "
             response = response[:len(response) - 2] + "}" # убираю последнюю запятую с пробелом
+        elif inspect.isclass(obj):
+            pass
+        elif inspect.isroutine(obj):  # объект, определяемый пользователем
+
+            ans = JSONHelper.ser_func(obj)
+
+            resp = JSONSerializer.dumps(ans)
+            response  = resp
+
         return response
 
     @staticmethod
@@ -57,6 +76,8 @@ class JSONHelper:
 
     @staticmethod
     def help_dumps(obj) -> str:
+        a = type(obj)
+
         if isinstance(obj, (bool, float, int)):
             return str(obj).lower()
         elif isinstance(obj, str):
@@ -74,7 +95,6 @@ class JSONHelper:
             response = "[" + response + "]"
 
             return response
-
         elif isinstance(obj, dict):
 
             if not obj:  # если пустой
@@ -91,7 +111,12 @@ class JSONHelper:
             response = response[:len(response) - 2] + "}"  # убираю последнюю запятую с пробелом
 
             return response
+        elif isinstance(obj, bytes):
+            response = str(list(obj))
+        else:
+            response = str(obj)
 
+        return response
 
     @staticmethod
     def loads(json_string: str) -> object:
@@ -370,9 +395,87 @@ class JSONHelper:
                 simple_type_ans += json_string[i]
         return response
 
+    @staticmethod
+    def ser_func(func: object) -> dict:
+        def get_code_dict(code: object) -> dict:
+            response = {}
+
+            attrs = inspect.getmembers(code)
+
+            for attr in attrs:
+                if callable(attr[1]):
+                    continue
+                response[attr[0]] = attr[1]
+
+            return response
+
+        ans = {}
+        attributes = inspect.getmembers(func)
+
+        required_attributes = [att for att in attributes if att[0] in FUNCTION_ATTRIBUTES]
+
+        for attr in required_attributes:
+            if attr[0] == "__code__":
+                ans[attr[0]] = get_code_dict(attr[1])
+            else:
+               # if attr[0] == "__globals__":
+               #     ans[attr[0]] = {}
+               # else:
+                ans[attr[0]] = attr[1]
+        return ans
 
 
+    @staticmethod
+    def deser_func(str_dict: dict) -> object:
 
+        func_dict = JSONHelper.dict_to_norm(str_dict)
+
+        code = func_dict["__code__"]
+
+        args = []
+
+        for attr in CODE_ARGUMENTS:
+            arg = code[attr]
+            args.append(arg)
+
+
+        det = [CodeType(*args)]
+
+        glob = {"__builtins__": __builtins__}
+
+        for name, obj in func_dict["__globals__"].items():
+            glob[name] = obj
+        det.append(glob)
+
+        for attr in FUNCTION_ATTRIBUTES:
+            if attr == "__code__" or attr == "__module__" or attr == "__globals__":
+                continue
+            if attr == "__defaults__":
+                det.append(tuple(func_dict[attr]))
+            else:
+                det.append(func_dict[attr])
+
+        resul_function = FunctionType(*det)
+
+        return resul_function
+
+    @staticmethod
+    def dict_to_norm(str_dict) -> dict:
+
+        for key in str_dict:
+            if key == "__code__":
+                str_dict["__code__"]["co_cellvars"] = tuple(str_dict["__code__"]["co_cellvars"])
+                str_dict["__code__"]["co_consts"] = tuple(str_dict["__code__"]["co_consts"])
+                str_dict["__code__"]["co_code"] = bytes(str_dict["__code__"]["co_code"])
+                str_dict["__code__"]["co_freevars"] = tuple(str_dict["__code__"]["co_freevars"])
+                str_dict["__code__"]["co_linetable"] = bytes(str_dict["__code__"]["co_linetable"])
+                str_dict["__code__"]["co_lnotab"] = bytes(str_dict["__code__"]["co_lnotab"])
+                str_dict["__code__"]["co_names"] = tuple(str_dict["__code__"]["co_names"])
+                str_dict["__code__"]["co_varnames"] = tuple(str_dict["__code__"]["co_varnames"])
+            if key == "__globals__":
+                pass
+
+        return str_dict
 
 
 
