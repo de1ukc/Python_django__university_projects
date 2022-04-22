@@ -1,3 +1,4 @@
+import builtins
 import inspect
 import modulefinder
 import re
@@ -76,12 +77,35 @@ class JSONSerializer(Serializer):
 
             for key in obj:
                 if isinstance(key, (int, float, bool)) or key is None: # оборчиваю численные аргументы в ковычки
-                    response += "\"" + JSONHelper.help_dumps(key) + "\"" + ": " + JSONHelper.help_dumps(obj[key]) + ", "
+                    response += '"' + JSONHelper.help_dumps(key) + '"' + ": " + JSONHelper.help_dumps(obj[key]) + ", "
+                elif inspect.isroutine(obj[key]):
+                    response += '"' + JSONHelper.help_dumps(key) + '"' + ": " + JSONHelper.help_dumps(JSONHelper.ser_func(obj[key])) + ", "
                 else:
                     response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key])+", "
             response = response[:len(response) - 2] + "}" # убираю последнюю запятую с пробелом
+            #response = response.replace('""', '"', response.count('""'))
         elif inspect.isclass(obj):
-            pass
+            attrs = dict(filter(lambda pair: pair[0] != '__dict__' and pair[0] != '__weakref__', vars(obj).items()))
+            bases = tuple(filter(
+                lambda base: not getattr(builtins, base.__name__, None) and not getattr(builtins, base.__qualname__,
+                                                                                        None), obj.__bases__))
+            for k in attrs:
+                attrs[k] = getattr(obj, k)
+            attrs_to_dict = JSONSerializer.dumps(attrs)
+            bases_to_dict = JSONSerializer.dumps(bases)
+
+            print(attrs_to_dict)
+
+            buff = {'__type__': 'class',
+                   '__name__': obj.__name__,
+                   '__qualname__': obj.__qualname__,
+                   '__bases__': bases_to_dict,
+                   '__attrs__': attrs_to_dict
+                    }
+            response = '{"__type__": "class", "__name__": "' + obj.__name__+ '", "__qualname__": "' + obj.__qualname__+ '", "__bases__": '+ bases_to_dict + ', "__attrs__": ' + attrs_to_dict + '}'
+            response = response.replace('""','"', response.count('""'))
+
+
         elif inspect.isroutine(obj):  # объект, определяемый пользователем
 
             ans = JSONHelper.ser_func(obj)
@@ -100,7 +124,7 @@ class JSONSerializer(Serializer):
     def loads(serialized_str: str) -> object:
         obj = JSONHelper.loads(serialized_str)
 
-        for item in obj:
+        for item in obj:  # для функции
             if isinstance(item, dict):
                 if "__closure__" in item:
                     buff = JSONHelper.deser_func(item)
@@ -110,7 +134,29 @@ class JSONSerializer(Serializer):
                     elif isinstance(obj, tuple):
                         del obj[item]
                         obj[item] = buff
-        # осталось заменить этот словарь на буфф
+
+        functions_dict = {}
+        fiels_dict = {}
+
+        if isinstance(obj,dict):
+            if "__type__" in obj:
+                if obj["__type__"] == "class":
+                    name = obj["__name__"]
+
+                    for item in obj["__attrs__"]:
+                        if obj["__attrs__"][item] is not None and not isinstance(obj["__attrs__"][item], int):
+                            if "__closure__" in obj["__attrs__"][item]:
+                                buff = JSONHelper.deser_func(obj["__attrs__"][item])
+                                functions_dict[buff.__name__] = buff
+                            elif item == "__module__":
+                                continue
+                        else:
+                            buff = obj["__attrs__"][item]
+                            fiels_dict[item] = buff
+
+                settings = {**fiels_dict, **functions_dict}
+
+                obj = type(obj["__name__"],(object,), settings)
 
         return obj
 
@@ -179,6 +225,7 @@ class JSONHelper:
             border = len(string_to_list)
             number_in_str = False
             buffer_str = ""
+            to_dict = False
 
             while i < border:
                 if string_to_list[i] == "[":
@@ -215,7 +262,10 @@ class JSONHelper:
 
                 elif string_to_list[i] == "{":
                     resp = loads_dict(string_to_list[i + 1:])
-                    ans.append(resp[0])
+                    if to_dict:
+                        ans.append({buffer_str: resp[0]})
+                    else:
+                        ans.append(resp[0])
                     string_to_list = resp[1]
                     border = len(string_to_list)
                     i = - 1
@@ -269,6 +319,9 @@ class JSONHelper:
                             number_in_str = True
                         i += 1
                         continue
+                    elif string_to_list[i] == ":":
+                        to_dict = True
+                        i += 1
                     else:
                         buffer_str += string_to_list[i]
                 i += 1
@@ -488,7 +541,6 @@ class JSONHelper:
             arg = code[attr]
             args.append(arg)
 
-
         det = [CodeType(*args)]
 
         glob = {"__builtins__": __builtins__}
@@ -496,11 +548,17 @@ class JSONHelper:
         for name, obj in func_dict["__globals__"].items():
             glob[name] = obj
 
+        print(glob["mycls"].find("class"))
+
         for key in glob:
             if isinstance(glob[key], str):
                 if glob[key].find('module') and not key.startswith('__') and key != "factory" and key != "JSONHelper" \
-                        and key != str_dict["__name__"]  and key != "main":
+                        and key != str_dict["__name__"]  and key != "main" :
+                    if isinstance(glob[key], str):
+                        if glob[key].find("class") == 1:
+                            continue
                     glob[key] = import_module(key)
+
 
         det.append(glob)
 
@@ -518,7 +576,6 @@ class JSONHelper:
 
     @staticmethod
     def dict_to_norm(str_dict) -> dict:
-
         for key in str_dict:
             if key == "__code__":
                 str_dict["__code__"]["co_cellvars"] = tuple(str_dict["__code__"]["co_cellvars"])
@@ -533,6 +590,3 @@ class JSONHelper:
                 pass
 
         return str_dict
-
-
-
