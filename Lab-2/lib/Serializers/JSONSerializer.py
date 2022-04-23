@@ -1,33 +1,40 @@
 import builtins
 import inspect
-import modulefinder
-import re
 from importlib import import_module
-from pprint import pprint
 from types import FunctionType, CodeType
-
 from lib.Serializers.Attributes import FUNCTION_ATTRIBUTES
 from lib.Serializers.Attributes import CODE_ARGUMENTS
-
-
 from lib.Serializers.Serializer import Serializer
 
 
 class JSONSerializer(Serializer):
-
     @staticmethod
     def dump(obj: object, file_name: str):
+        """
+        Сериализует переданный объект в JSON файл
+        :param obj: объект
+        :type obj: object
+        :param file_name: имя файла
+        :type file_name: str
+        :rtype: None
+        """
+
         string = JSONSerializer.dumps(obj)
 
         with open(file_name, "w") as file:
             file.write(string)
 
-
     @staticmethod
     def dumps(obj) -> str:
+        """
+        Сериализует переданный объект в JSON строку
+        :param obj: объект( в том числе класс, фукнция)
+        :type obj: object
+        :rtype: str
+        """
+
         serialized = []
         keys = []
-
         response = ""
 
         if isinstance(obj, (list, tuple)):
@@ -66,6 +73,7 @@ class JSONSerializer(Serializer):
             for item in buff_dict:
                 response += ", \"" + str(item) + "\""  + ": " + buff_dict[item]
             response = "[" + response + "]"
+
         elif isinstance(obj, (float, int, bool, str)):
             response = JSONHelper.help_dumps(obj)
 
@@ -83,7 +91,7 @@ class JSONSerializer(Serializer):
                 else:
                     response += JSONHelper.help_dumps(key) + ": " + JSONHelper.help_dumps(obj[key])+", "
             response = response[:len(response) - 2] + "}" # убираю последнюю запятую с пробелом
-            #response = response.replace('""', '"', response.count('""'))
+
         elif inspect.isclass(obj):
             attrs = dict(filter(lambda pair: pair[0] != '__dict__' and pair[0] != '__weakref__', vars(obj).items()))
             bases = tuple(filter(
@@ -91,37 +99,42 @@ class JSONSerializer(Serializer):
                                                                                         None), obj.__bases__))
             for k in attrs:
                 attrs[k] = getattr(obj, k)
+
             attrs_to_dict = JSONSerializer.dumps(attrs)
             bases_to_dict = JSONSerializer.dumps(bases)
 
-            print(attrs_to_dict)
-
-            buff = {'__type__': 'class',
-                   '__name__': obj.__name__,
-                   '__qualname__': obj.__qualname__,
-                   '__bases__': bases_to_dict,
-                   '__attrs__': attrs_to_dict
-                    }
-            response = '{"__type__": "class", "__name__": "' + obj.__name__+ '", "__qualname__": "' + obj.__qualname__+ '", "__bases__": '+ bases_to_dict + ', "__attrs__": ' + attrs_to_dict + '}'
-            response = response.replace('""','"', response.count('""'))
-
+            response = '{"__type__": "class", "__name__": "' + obj.__name__+ '", "__qualname__": "' + obj.__qualname__ + '", "__bases__": ' + bases_to_dict + ', "__attrs__": ' + attrs_to_dict + '}'
+            response = response.replace('""', '"', response.count('""'))
 
         elif inspect.isroutine(obj):  # объект, определяемый пользователем
-
             ans = JSONHelper.ser_func(obj)
-
             resp = JSONSerializer.dumps(ans)
-            response  = resp
+            response = resp
+
         return response
 
     @staticmethod
     def load(file_name) -> object:
+        """
+        Загружает объект из JSON файла
+        :param file_name: имя файла
+        :type file_name: str
+        :rtype: object
+        """
+
         with open(file_name, "r") as file:
             obj = JSONSerializer.loads(file.read())
         return obj
 
     @staticmethod
     def loads(serialized_str: str) -> object:
+        """
+         Десериализует объект из строки
+        :param serialized_str: объект в виде строки
+        :type serialized_str: str
+        :rtype: object
+        """
+
         obj = JSONHelper.loads(serialized_str)
 
         for item in obj:  # для функции
@@ -165,8 +178,6 @@ class JSONHelper:
 
     @staticmethod
     def help_dumps(obj) -> str:
-        a = type(obj)
-
         if isinstance(obj, (bool, float, int)):
             return str(obj).lower()
         elif isinstance(obj, str):
@@ -185,18 +196,10 @@ class JSONHelper:
 
             return response
         elif isinstance(obj, dict):
-
             if not obj:  # если пустой
                 return "{}"
 
             response = "{"
-
-            buff_dict = {}
-          #  for key in obj:
-            #    if inspect.isroutine(obj[key]):
-            #        buff_dict[key] = JSONSerializer.dumps(obj[key])
-               #     del obj[key]
-
 
             for key in obj:
                 if isinstance(key, (int, float)):
@@ -234,6 +237,7 @@ class JSONHelper:
                     string_to_list = resp[1]
                     border = len(string_to_list)
                     i = - 1
+
                 elif string_to_list[i] == "]":
                     if buffer_str != "":
                         if is_float(buffer_str):
@@ -257,8 +261,7 @@ class JSONHelper:
                         else:
                             ans.append(buffer_str)
 
-                    return (ans, string_to_list[i + 1:])
-
+                    return ans, string_to_list[i + 1:]
 
                 elif string_to_list[i] == "{":
                     resp = loads_dict(string_to_list[i + 1:])
@@ -269,18 +272,16 @@ class JSONHelper:
                     string_to_list = resp[1]
                     border = len(string_to_list)
                     i = - 1
-                # elif: # проверка на функцию
-                # elif: # проверка на класс
-
                 else:
-
                     if string_to_list[i].isdigit():
                         buffer_str += string_to_list[i]
+
                     elif string_to_list[i] == ".":
                         if string_to_list[i - 1].isdigit():
                             buffer_str += string_to_list[i]
                         else:
                             pass
+
                     elif string_to_list[i] == " ":
                         if string_to_list[i - 1] != ",":
                             buffer_str += string_to_list[i]
@@ -426,20 +427,12 @@ class JSONHelper:
                             buffer_value += string_to_dict[i]
                 i += 1
 
-        def loads_primitives(string_to_prim: str) -> (object, str):
-            pass
-
         def is_float(s):
             result = False
             if s.count(".") == 1:
                 if s.replace(".", "").isdigit():
                     result = True
             return result
-
-        ######################################################################################
-        ######################################################################################
-        ######################################################################################
-        # int в кортеже возврата - индекс, по который нужно обрезать строку
 
         if json_string[0] == "[":
             response = []
@@ -530,7 +523,6 @@ class JSONHelper:
 
     @staticmethod
     def deser_func(str_dict: dict) -> object:
-
         func_dict = JSONHelper.dict_to_norm(str_dict)
 
         code = func_dict["__code__"]
