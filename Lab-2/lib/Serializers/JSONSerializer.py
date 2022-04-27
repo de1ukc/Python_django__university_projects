@@ -2,9 +2,9 @@ import builtins
 import inspect
 from importlib import import_module
 from types import FunctionType, CodeType
-from lib.Serializers.Attributes import FUNCTION_ATTRIBUTES
-from lib.Serializers.Attributes import CODE_ARGUMENTS
-from lib.Serializers.Serializer import Serializer
+from .Attributes import FUNCTION_ATTRIBUTES
+from .Attributes import CODE_ARGUMENTS
+from .Serializer import Serializer
 
 
 class JSONSerializer(Serializer):
@@ -21,6 +21,7 @@ class JSONSerializer(Serializer):
 
         string = JSONSerializer.dumps(obj)
 
+
         with open(file_name, "w") as file:
             file.write(string)
 
@@ -36,6 +37,9 @@ class JSONSerializer(Serializer):
         serialized = []
         keys = []
         response = ""
+
+        if obj is None:
+            return "null"
 
         if isinstance(obj, (list, tuple)):
             func = [item for item in obj if inspect.isroutine(item)]  # для листов
@@ -137,16 +141,21 @@ class JSONSerializer(Serializer):
 
         obj = JSONHelper.loads(serialized_str)
 
-        for item in obj:  # для функции
-            if isinstance(item, dict):
-                if "__closure__" in item:
-                    buff = JSONHelper.deser_func(item)
-                    if isinstance(obj, list):
-                        obj.remove(item)
-                        obj.append(buff)
-                    elif isinstance(obj, tuple):
-                        del obj[item]
-                        obj[item] = buff
+        if isinstance(obj, dict):
+            if "__closure__" in obj:
+                buff = JSONHelper.deser_func(obj)
+                obj = buff
+            else:
+                for item in obj:  # для функции
+                    if isinstance(item, dict):
+                        if "__closure__" in item:
+                            buff = JSONHelper.deser_func(item)
+                            if isinstance(obj, list):
+                                obj.remove(item)
+                                obj.append(buff)
+                            elif isinstance(obj, tuple):
+                                del obj[item]
+                                obj[item] = buff
 
         functions_dict = {}
         fiels_dict = {}
@@ -539,8 +548,6 @@ class JSONHelper:
 
         for name, obj in func_dict["__globals__"].items():
             glob[name] = obj
-
-        print(glob["mycls"].find("class"))
 
         for key in glob:
             if isinstance(glob[key], str):

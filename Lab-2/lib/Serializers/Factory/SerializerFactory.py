@@ -1,6 +1,6 @@
-from lib.Serializers.JSONSerializer import JSONSerializer
-from lib.Serializers.YAMLSerializer import YAMLSerializer
-from lib.Serializers.TOMLSerializer import TOMLSerializer
+from ..JSONSerializer import JSONSerializer
+from ..YAMLSerializer import YAMLSerializer
+from ..TOMLSerializer import TOMLSerializer
 
 
 def factory(type_of_serializer: str):
