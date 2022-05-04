@@ -1,23 +1,9 @@
-import dill
+import toml
 from Serializers.Factory.SerializerFactory import factory
 import argparse
 import files_paths
 from fun import f
-import math
-import json
-import toml
-import yaml
-
-
-c = 42
-# Мой класс
-class mycls:
-    name = "Valery Albertych"
-    age = 54
-
-    def pupa_lupa(x = 1, y = 2):
-        s = json.dumps("ABACABA")
-        return math.sin(x + y + c), s
+from cls import mycls
 
 
 def add_arguments() -> None:
@@ -73,27 +59,8 @@ def what_to_do(args) -> None:
 
 
 def main() -> None:
-   # args = add_arguments()
-   # what_to_do(args)
-   #serializer = factory("JSON")
-   #print(serializer.load("/home/de1ukc/Programming/GitReps/Python-Labs/Lab-2/Files/JSONFunc.json"))
-   #serializer.dump(f, "/home/de1ukc/Programming/GitReps/Python-Labs/Lab-2/Files/JSONFunc.json")
+    pass
 
-
-   serialier = factory("TOML")
-   serialier_json = factory("JSON")
-
-   serialier_json.dump(f, files_paths.JSON_PATH)
-
-   from_json = serialier_json.load(files_paths.JSON_PATH)
-
-   print(from_json(55,44))
-
-   serialier.dump(from_json, files_paths.TOML_PATH)
-
-   from_toml = serialier.load(files_paths.TOML_PATH)
-
-   print(from_toml())
 
 if __name__ == "__main__":
     main()

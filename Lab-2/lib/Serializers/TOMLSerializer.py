@@ -1,6 +1,5 @@
 import inspect
 import json
-
 from .Serializer import Serializer
 import toml
 import dill
@@ -55,7 +54,5 @@ class TOMLSerializer(Serializer):
             return json.loads(obj_in_str)
         else:
             return toml.loads(obj_in_str)
-
-
 
 # Разрешено использование встроенных реализаций TOML
