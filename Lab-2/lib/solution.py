@@ -54,12 +54,17 @@ def what_to_do(args) -> None:
 
     if args.file_or_string == "File":
         dumper.dump(obj, args.to_file)
-    else:
-        print(dumper.dumps(obj))
+    elif args.file_or_string == "String":
+        if args.mode == "Deserialize":
+            print(obj)
+        else:
+            print(dumper.dumps(obj))
+
 
 
 def main() -> None:
-    pass
+    args = add_arguments()
+    what_to_do(args)
 
 
 if __name__ == "__main__":
