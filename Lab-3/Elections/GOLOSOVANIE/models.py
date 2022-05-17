@@ -22,8 +22,10 @@ class Candidate(models.Model):
     description = models.TextField()
     preview = models.ImageField(upload_to=path_to_directory)
     #slogan = models.ForeignKey('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
-    batch = models.ForeignKey('Batch', on_delete=models.CASCADE, verbose_name='Партия', null=True, blank=True) # многие к одному, в параметры передаётся именно то, чего будет 1 штука
+    #preview_text = models.CharField(max_length=100)
+    batch = models.ForeignKey('Batch', on_delete=models.CASCADE, verbose_name='Партия', null=True, default='Самовыдвиженец') # многие к одному, в параметры передаётся именно то, чего будет 1 штука
     slogan = models.OneToOneField('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
+
 
     class Meta:
         verbose_name = 'Кандидат'

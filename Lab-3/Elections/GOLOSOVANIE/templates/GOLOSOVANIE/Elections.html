@@ -12,7 +12,25 @@
   </head>
   <body>
   <div class="container">
-      <button type="button" class="btn btn-dark">Dark</button>
+      <div class="row mb-3">
+          {% for candidate in Candidates%}
+            <div class="card mb-3" style="max-width: 540px;">
+              <div class="row no-gutters">
+                <div class="col-md-4">
+                  <img src="..." alt="...">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                      <a href="#" class="btn btn-dark">Go somewhere</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+      </div>
   </div>
     <!--
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
