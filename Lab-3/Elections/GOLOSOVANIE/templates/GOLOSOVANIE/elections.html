@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+
+
+{% block navbar %}
+    {% include 'inc/_navbar.html' %}
+{% endblock %}
+
+{% block sidebar %}
+    <div class="row mb-2">
+       <div class="col-md-3 mt-2">
+            <div class="list-group">
+                {% for batch in batches%}
+                <a href="{{ batch.get_absolute_url }}" class="list-group-item list-group-item-action"> {{batch.name}}</a>
+                {% endfor %}
+
+            </div>
+       </div>
+{% endblock %}
+
+  {% block content %}
+    <div class="col-md-8">
+      {% for candidate in candidates%}
+        <div class="card m-2" style="max-width: 540px;">
+          <div class="row no-gutters">
+            <div class="col-md-4 mt-2 mb-2 ">
+              <img src="{{candidate.preview.url}}" alt="..." width="190" height="250">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body" align="center">
+                <h5 class="card-title" align="center">{{candidate.first_name}} {{candidate.last_name}}</h5>
+                <p class="card-text" align="center">{{candidate.slogan}}</p>
+                {% if candidate.batch != None %}
+                <p class="card-text" align="center">Партия: {{candidate.batch}}</p>
+                {% else %}
+                <p class="card-text" align="center">Самовыдвиженец</p>
+                {% endif %}
+                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                  <a href="{{ candidate.get_absolute_url }}" class="btn btn-dark">Подробнее</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+{% endblock %}
