@@ -50,7 +50,7 @@ class CreateCandidate(CreateView):
 def index(request):
     template = loader.get_template('GOLOSOVANIE/index.html')
 
-    home_page = StartPage.objects.get(id=4)
+    home_page = StartPage.objects.first()
 
     context = {
         'home_page': home_page,
