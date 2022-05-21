@@ -3,6 +3,48 @@ from django.http import HttpResponse, Http404
 from django.template import loader
 from .models import Candidate, Batch, StartPage
 from .forms import CandidateForm
+from django.views.generic import ListView, DetailView, CreateView
+from django.urls import reverse_lazy
+
+
+class CandidateList(ListView):
+    model = Candidate
+    template_name = 'GOLOSOVANIE/elections.html'
+    context_object_name = 'candidates'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['batches'] = Batch.objects.all()
+        return context
+
+    def get_queryset(self):
+        return Candidate.objects.filter()
+
+
+class CandidateByBatch(ListView):
+    model = Candidate
+    template_name = 'GOLOSOVANIE/batch.html'
+    context_object_name = 'candidates'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['batches'] = Batch.objects.all()
+        return context
+
+    def get_queryset(self):
+        return Candidate.objects.filter(batch_id=self.kwargs['batch_id'])
+
+
+class CandidateProfile(DetailView):
+    model = Candidate
+    template_name = 'GOLOSOVANIE/candidate.html'
+    context_object_name = 'candidate'
+
+
+class CreateCandidate(CreateView):
+    form_class = CandidateForm
+    template_name = 'GOLOSOVANIE/add_candidate.html'
+    success_url = reverse_lazy('elections')
 
 
 def index(request):
@@ -15,71 +57,4 @@ def index(request):
     }
 
     return HttpResponse(template.render(context, request))
-
-
-def elections(request):
-    template = loader.get_template('GOLOSOVANIE/elections.html')
-
-    candidates = Candidate.objects.all()
-    batches = Batch.objects.all()
-
-    context = {
-        'title': 'Голосуй.',
-        'candidates': candidates,
-        'batches': batches,
-    }
-    return HttpResponse(template.render(context, request))
-
-
-def get_batch(request, batch_id):
-    template = loader.get_template('GOLOSOVANIE/batch.html')
-
-    try:
-        candidates = Candidate.objects.filter(batch_id=batch_id)
-    except Candidate.DoesNotExist:
-        raise Http404("Данный кандидат уже сидит или расстрелян.")
-
-    batches = Batch.objects.all()
-
-    context = {
-        'title': 'Голосуй.',
-        'candidates': candidates,
-        'batches': batches,
-    }
-    return HttpResponse(template.render(context, request))
-
-
-def candidate(request, candidate_id):  # страница не закончена. На ней будет вся инфа по кандидату
-    template = loader.get_template('GOLOSOVANIE/candidate.html')
-
-    try:
-        candidate = Candidate.objects.get(pk=candidate_id)
-    except Candidate.DoesNotExist:
-        raise Http404("Данный кандидат уже сидит или расстрелян.")
-
-    context = {
-        'candidate': candidate,
-    }
-
-    return HttpResponse(template.render(context, request))
-
-
-def add_candidate(request):
-    template = loader.get_template('GOLOSOVANIE/add_candidate.html')
-
-    if request.method == 'POST':
-        form = CandidateForm(request.POST)
-        if form.is_valid():
-             Candidate.objects.create(**form.cleaned_data)
-             return redirect('elections')
-        print("HI")
-    else:
-        form = CandidateForm()
-
-    context = {
-        'form': form,
-    }
-
-    return HttpResponse(template.render(context, request))
-
 

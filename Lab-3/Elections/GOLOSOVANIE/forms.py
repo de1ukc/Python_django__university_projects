@@ -56,18 +56,19 @@ from .models import Candidate, Batch
 
 
 class CandidateForm(forms.ModelForm):
+
+    # slogan2 = forms.CharField(max_length=100, label='Слоган', widget=forms.TextInput(
+    #     attrs={
+    #         'class': 'form-control',
+    #     }
+    # ))
+    #
+
     class Meta:
         model = Candidate
 
-        batch = forms.ModelChoiceField(queryset=Batch.objects.all(), required=False, empty_label='Самовыдвиженец',
-                                                                          label='Партия', widget=forms.Select(
-                                                   attrs={
-                                                       'class': 'form-control',
-                                                   }
-                                               ))
-
         fields = ['first_name', 'last_name', 'middle_name', 'date_of_birth', 'region', 'description',
-                  'preview', 'batch', 'slogan']
+                  'batch', 'preview', 'slogan']
 
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -103,5 +104,4 @@ class CandidateForm(forms.ModelForm):
             'batch': forms.Select(attrs={
                 'class': 'form-control',
             })
-
         }

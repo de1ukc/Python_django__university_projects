@@ -21,7 +21,7 @@ class Candidate(models.Model):
     preview = models.ImageField(upload_to=path_to_directory)
     #slogan = models.ForeignKey('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
     #preview_text = models.CharField(max_length=100)
-    batch = models.ForeignKey('Batch', on_delete=models.CASCADE, verbose_name='Партия', null=True, blank=True) # многие к одному, в параметры передаётся именно то, чего будет 1 штука
+    batch = models.ForeignKey('Batch', on_delete=models.CASCADE, verbose_name='Партия', default=4, blank=True) # многие к одному, в параметры передаётся именно то, чего будет 1 штука
     slogan = models.OneToOneField('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
 
     class Meta:
@@ -33,7 +33,7 @@ class Candidate(models.Model):
         return self.first_name + self.last_name
 
     def  get_absolute_url(self):
-        return reverse('candidate', kwargs={'candidate_id': self.pk})
+        return reverse('candidate', kwargs={'pk': self.pk})
 
 
 
