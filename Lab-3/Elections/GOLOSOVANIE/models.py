@@ -23,6 +23,7 @@ class Candidate(models.Model):
     #preview_text = models.CharField(max_length=100)
     batch = models.ForeignKey('Batch', on_delete=models.CASCADE, verbose_name='Партия', default=4, blank=True) # многие к одному, в параметры передаётся именно то, чего будет 1 штука
     slogan = models.OneToOneField('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
+    #support_count = models.IntegerField()  для прибавления к значению будет candidate.support_count = F('support_count') + 1
 
     class Meta:
         verbose_name = 'Кандидат'
@@ -30,7 +31,7 @@ class Candidate(models.Model):
         ordering = ('-date_of_birth',)
 
     def __str__(self):
-        return self.first_name + self.last_name
+        return self.first_name + " " +  self.last_name
 
     def  get_absolute_url(self):
         return reverse('candidate', kwargs={'pk': self.pk})

@@ -5,6 +5,7 @@ from .models import Candidate, Batch, StartPage
 from .forms import CandidateForm
 from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
+from django.db.models import Count
 
 
 class CandidateList(ListView):
@@ -14,25 +15,21 @@ class CandidateList(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['batches'] = Batch.objects.all()
+        # context['batches'] = Batch.objects.all()
+        context['batches'] = Batch.objects.annotate(cnt=Count('candidate'))
         return context
 
     def get_queryset(self):
-        return Candidate.objects.filter()
+        return Candidate.objects.all().select_related('batch', 'slogan')
 
 
-class CandidateByBatch(ListView):
-    model = Candidate
+class CandidateByBatch(CandidateList):
     template_name = 'GOLOSOVANIE/batch.html'
-    context_object_name = 'candidates'
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['batches'] = Batch.objects.all()
-        return context
 
     def get_queryset(self):
-        return Candidate.objects.filter(batch_id=self.kwargs['batch_id'])
+        return Candidate.objects.filter(batch_id=self.kwargs['batch_id']).select_related('batch', 'slogan')
+    #  select_related используется для оптимизации запросов. Он жадный, то есть заставляет запрос выполниться
+    #  прямо сейчас, а не когда понадобятся данные. Хорош в использовании с ForeignKey
 
 
 class CandidateProfile(DetailView):

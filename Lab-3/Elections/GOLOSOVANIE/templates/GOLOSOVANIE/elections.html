@@ -11,7 +11,10 @@
        <div class="col-md-3 mt-2">
             <div class="list-group">
                 {% for batch in batches%}
-                <a href="{{ batch.get_absolute_url }}" class="list-group-item list-group-item-action"> {{batch.name}}</a>
+                <a href="{{ batch.get_absolute_url }}" class="list-group-item list-group-item-action"> {{batch.name}}
+                    <span class="badge badge-primary badge-pill" align="float"> {{batch.cnt}}</span>
+<!--                    нужно добавить выравнивание по правому краю-->
+                </a>
                 {% endfor %}
 
             </div>
