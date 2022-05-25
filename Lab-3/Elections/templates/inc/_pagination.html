@@ -1,5 +1,5 @@
 {% if page_obj.has_other_pages %}
-<nav aria-label="... " style="width: 100%; border: 2px solid;">
+<nav aria-label="... " >
   <ul class="pagination">
 
     {% if page_obj.has_previous %}
@@ -27,6 +27,8 @@
                <a class="page-link" href="?page={{p}}">{{ p }}</a>
             </li>
         {% endif %}
+
+
 
     {% endfor %}
 
