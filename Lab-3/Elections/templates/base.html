@@ -16,27 +16,28 @@
 {#    <div class="container mt-3 ml-1" >#}
     {% block sidebar %} {% endblock %}
 
-      {% if messages %}
-        {% for message in messages %}
-
-          {% if message.tags == 'error' %}
-          <div class="alert alert-dark" role="alert">
-              {{ message }}
-          </div>
-          {% else %}
-            <div class="alert alert-light" role="alert">
-                {{ message }}
-            </div>
-
-          {% endif %}
-
-        {% endfor %}
-
-      {% endif %}
+{#      {% if messages %}#}
+{#        {% for message in messages %}#}
+{##}
+{#          {% if message.tags == 'error' %}#}
+{#          <div class="alert alert-dark" role="alert">#}
+{#              {{ message }}#}
+{#          </div>#}
+{#          {% else %}#}
+{#            <div class="alert alert-light" role="alert">#}
+{#                {{ message }}#}
+{#            </div>#}
+{##}
+{#          {% endif %}#}
+{##}
+{#        {% endfor %}#}
+{##}
+{#      {% endif %}#}
 
 {#    </div>#}
-        {% block content %} {% endblock %}
-            {% block pagination %} {% endblock %}
+{#        {% block content %} {% endblock %}#}
+    {% block content_sidebar %} {% endblock %}
+{#            {% block pagination %} {% endblock %}#}
 
 
     <!--
