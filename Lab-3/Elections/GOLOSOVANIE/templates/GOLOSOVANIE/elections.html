@@ -7,22 +7,11 @@
 {% endblock %}
 
 {% block sidebar %}
-    <div class="row mb-2">
-       <div class="col-md-3 mt-2">
-            <div class="list-group">
-                {% for batch in batches%}
-                <a href="{{ batch.get_absolute_url }}" class="list-group-item list-group-item-action"> {{batch.name}}
-                    <span class="badge badge-primary badge-pill" align="float"> {{batch.cnt}}</span>
-<!--                    нужно добавить выравнивание по правому краю-->
-                </a>
-                {% endfor %}
-
-            </div>
-       </div>
+    {% include 'inc/_sidebar.html' %}
 {% endblock %}
 
   {% block content %}
-    <div class="col-md-8">
+    <div class="flex-row" align="center">
       {% for candidate in candidates%}
         <div class="card m-2" style="max-width: 540px;">
           <div class="row no-gutters">
@@ -38,7 +27,7 @@
                 {% else %}
                 <p class="card-text" align="center">Самовыдвиженец</p>
                 {% endif %}
-                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                <p class="card-text"><small class="text-muted">Поддерживают {{ candidate.support_count }}</small></p>
                   <a href="{{ candidate.get_absolute_url }}" class="btn btn-dark">Подробнее</a>
               </div>
             </div>
@@ -47,4 +36,12 @@
       {% endfor %}
       </div>
     </div>
+  {% endblock %}
+
+{% block pagination %}
+<div class="row ml-2">
+  {% include 'inc/_pagination.html' %}
+  </div>
 {% endblock %}
+
+

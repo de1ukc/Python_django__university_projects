@@ -13,10 +13,31 @@
   <body>
     {% block navbar %}{% endblock %}
 
-    <div class="container mt-3 ml-1 mr-1">
+{#    <div class="container mt-3 ml-1" >#}
     {% block sidebar %} {% endblock %}
-    {% block content %} {% endblock %}
-    </div>
+
+      {% if messages %}
+        {% for message in messages %}
+
+          {% if message.tags == 'error' %}
+          <div class="alert alert-dark" role="alert">
+              {{ message }}
+          </div>
+          {% else %}
+            <div class="alert alert-light" role="alert">
+                {{ message }}
+            </div>
+
+          {% endif %}
+
+        {% endfor %}
+
+      {% endif %}
+
+{#    </div>#}
+        {% block content %} {% endblock %}
+            {% block pagination %} {% endblock %}
+
 
     <!--
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

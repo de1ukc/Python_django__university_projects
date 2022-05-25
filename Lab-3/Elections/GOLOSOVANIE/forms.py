@@ -1,58 +1,6 @@
 from django import forms
-from .models import Candidate, Batch
-
-# class CandidateForm(forms.Form):
-#     first_name = forms.CharField(max_length=150, label='Имя', widget=forms.TextInput(
-#         attrs={
-#             'class': 'form-control',
-#         }
-#     ))
-#
-#     last_name = forms.CharField(max_length=150, label='Фамилия', widget=forms.TextInput(
-#         attrs={
-#             'class': 'form-control',
-#         }
-#     ))
-#
-#     middle_name = forms.CharField(max_length=150, label='Отчество', widget=forms.TextInput(
-#         attrs={
-#             'class': 'form-control',
-#         }
-#     ))
-#
-#     date_of_birth = forms.DateField(label='Дата рождения', widget=forms.DateInput(
-#             attrs={
-#                 'class': 'date',
-#                 'placeholder': 'D.M.YYYY',
-#             }))  # ????? как-то плохо вышло
-#
-#     region = forms.CharField(max_length=150, label='Регион', widget=forms.TextInput(
-#         attrs={
-#             'class': 'form-control',
-#         }
-#     ))
-#
-#     description = forms.CharField(label='Описание', widget=forms.Textarea(
-#         attrs={
-#             'class': 'form-control',
-#             'rows': 5,
-#         }
-#     ))
-#
-#     slogan = forms.CharField(max_length=100, label='Слоган', widget=forms.TextInput(
-#         attrs={
-#             'class': 'form-control',
-#         }
-#     ))
-#
-#     batch = forms.ModelChoiceField(queryset=Batch.objects.all(), required=False, empty_label='Самовыдвиженец',
-#                                    label='Партия', widget=forms.Select(
-#             attrs={
-#                 'class': 'form-control',
-#             }
-#         ))
-#
-#     preview = forms.ImageField(label='Фотокарточка')
+from .models import Candidate, Batch, StartPage, MyUser, Slogan
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 
 class CandidateForm(forms.ModelForm):
@@ -68,7 +16,7 @@ class CandidateForm(forms.ModelForm):
         model = Candidate
 
         fields = ['first_name', 'last_name', 'middle_name', 'date_of_birth', 'region', 'description',
-                  'batch', 'preview', 'slogan']
+                  'batch', 'preview', 'slogan', 'creator']
 
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -97,11 +45,78 @@ class CandidateForm(forms.ModelForm):
                 'rows': '5',
             }),
 
-            'slogan': forms.TextInput(attrs={
+            'slogan': forms.Select(attrs={
                 'class': 'form-control',
             }),
 
             'batch': forms.Select(attrs={
                 'class': 'form-control',
+            }),
+
+            'creator': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+        }
+
+class SloganForm(forms.ModelForm):
+    class Meta:
+        model = Slogan
+
+        fields = ('slogan',)
+
+        widgets = {
+            'slogan': forms.TextInput(attrs={
+                'class': 'form-control',
             })
         }
+
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(label='E-mail', widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+        }
+    ))
+
+    username = forms.CharField(max_length=30, label='Имя пользователя', help_text="Имя должно быть на английском",
+                               widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+        }
+    ))
+
+    nick_name = forms.CharField(max_length=30, label='Ник', widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+        }
+    ))
+
+    password1 = forms.CharField(max_length=30, label='Пароль', widget=forms.PasswordInput(
+        attrs={
+            'class': 'form-control',
+        }
+    ))
+
+    password2 = forms.CharField(max_length=30, label='Подтверждение пароля', widget=forms.PasswordInput(
+        attrs={
+            'class': 'form-control',
+        }
+    ))
+
+    class Meta:
+        model = MyUser
+        fields = ('username', 'nick_name', 'email', 'password1', 'password2')
+
+
+class UserLoginForm(AuthenticationForm):
+    username = forms.CharField(max_length=30, label='Имя пользователя', help_text="Имя должно быть на английском",
+                              widget=forms.TextInput(
+                                  attrs={
+                                      'class': 'form-control',
+                                  }
+                              ))
+
+    password = forms.CharField(max_length=30, label='Пароль', widget=forms.PasswordInput(
+        attrs={
+            'class': 'form-control',
+        }
+    ))

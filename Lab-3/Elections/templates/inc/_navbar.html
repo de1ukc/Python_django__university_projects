@@ -1,12 +1,28 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href=" {% url 'index' %}">Голосование</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+  <a class="navbar-brand" href="{% url 'index' %}">Голосавание</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <div class="navbar-nav">
-      <a class="nav-link active" href="{% url 'elections' %}">Кандидаты <span class="sr-only">(current)</span></a>
-      <a class="nav-link active" href="{% url 'add_candidate' %}">Добавить кандидата</a>
-    </div>
+  <div class="collapse navbar-collapse" id="navbarText">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'elections' %}">Кандидаты<span class="sr-only">(current)</span></a>
+      </li>
+      {% if request.user.is_authenticated  %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'add_slogan' %}">Добавить кандидата</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'my_candidates' %}">Мои кандидаты</a>
+      </li>
+    {% endif %}
+    </ul>
+    <span class="navbar-text">
+       {% if request.user.is_authenticated  %}
+           Слава Арцтоцке, {{ user.username }}! | <a href=" {% url 'logout' %}">Выход </a>
+       {% else %}
+           <a href="{% url 'registry' %}">Регистрация</a> | <a href=" {% url 'login' %} ">Авторизация</a>
+       {% endif %}
+    </span>
   </div>
 </nav>
