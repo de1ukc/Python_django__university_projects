@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import loader
-from .models import Candidate, Batch, StartPage, Slogan
+from .models import Candidate, Batch, StartPage, Slogan, MyUser
 from .forms import CandidateForm, UserRegisterForm, UserLoginForm, SloganForm
-from django.views.generic import ListView, DetailView, CreateView, View
-from django.urls import reverse_lazy
-from django.db.models import Count
+from django.views.generic import ListView, DetailView, CreateView, View, UpdateView, DeleteView
+from django.urls import reverse_lazy, reverse
+from django.db.models import Count, F
 from django.contrib.auth.mixins import LoginRequiredMixin
 #from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
@@ -51,10 +51,40 @@ class CandidateByBatch(CandidateList):
     #  прямо сейчас, а не когда понадобятся данные. Хорош в использовании с ForeignKey
 
 
-class CandidateProfile(DetailView):
-    model = Candidate
+class CandidateProfile(View):
     template_name = 'GOLOSOVANIE/candidate.html'
-    context_object_name = 'candidate'
+
+    def get(self, request, pk):
+        candidate = Candidate.objects.get(pk=pk)
+        flag_user = False
+
+        users = MyUser.objects.filter(candidates__in=(candidate,))
+
+        for usr in users:
+            if request.user.username == usr.username:
+                flag_user = True
+
+        print(flag_user)
+        context = {
+            'candidate_prof': candidate,
+            'flag_user': flag_user,
+        }
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, pk):
+        cand = Candidate.objects.get(pk=pk)
+        cand.support_count = F('support_count') + 1
+        cand.myuser_set.add(cand.creator)
+        cand.save()
+        return HttpResponseRedirect(reverse('candidate', args=(pk,)))
+
+
+class UpdateCandidate(UpdateView):
+    model = Candidate
+    fields = ['first_name', 'last_name', 'middle_name', 'date_of_birth', 'region', 'description', 'preview']
+    template_name = 'GOLOSOVANIE/update_candidate.html'
+    success_url = reverse_lazy('elections')
 
 
 class CreateCandidate(LoginRequiredMixin, CreateView):
@@ -80,8 +110,6 @@ class AddSlogan(View):
         form = SloganForm(request.POST)
         form.save()
         return redirect('add_candidate')
-
-
 
 
 class Index(View):
@@ -157,3 +185,9 @@ class UserLogout(View):
     def get(self, request):
         logout(request)
         return redirect('index')
+
+
+class DeleteCandidate(DeleteView):
+    model = Candidate
+    success_url = reverse_lazy('elections')
+    template_name = 'GOLOSOVANIE/delete_candidate.html'

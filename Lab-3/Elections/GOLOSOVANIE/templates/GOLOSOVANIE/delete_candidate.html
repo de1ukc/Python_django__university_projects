@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block navbar %}
+    {% include 'inc/_navbar.html' %}
+{% endblock %}
+
+{% block content %}
+<form method="post" align="center">{% csrf_token %}
+    <H1>Спасём беднягу?</H1>
+    <H1> {{ object }}</H1>
+
+    {{ form }}
+    <div class="photo"></div>
+    <img style="width: 20%; object-fit: cover; border-radius: 7px;" src="{{ object.preview.url }}"/>
+    </div>
+    <div class="but">
+    <input style="width: 200px; height: 42.5px; margin: 5px " type="submit" value="Удалить" class="btn-dark ">
+</div>
+</form>
+
+{% endblock %}

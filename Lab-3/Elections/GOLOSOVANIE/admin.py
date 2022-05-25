@@ -44,9 +44,9 @@ class BatchAdmin(admin.ModelAdmin):
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'nick_name', 'email')
+    list_display = ('id', 'username', 'nick_name', 'email',)
     list_display_links = ('id', 'username', 'nick_name')
-    fields = ('id', 'username', 'nick_name', 'email', 'password')
+    fields = ('id', 'username', 'nick_name', 'email', 'password', 'candidates')
     readonly_fields = ('id', 'password')
 
 

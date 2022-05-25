@@ -1,6 +1,6 @@
 from django import forms
 from .models import Candidate, Batch, StartPage, MyUser, Slogan
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
 
 
 class CandidateForm(forms.ModelForm):

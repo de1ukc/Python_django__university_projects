@@ -19,7 +19,7 @@ class Candidate(models.Model):
     middle_name = models.CharField(max_length=150, verbose_name='Отчество')
     date_of_birth = models.DateField(verbose_name='Дата рождения')
     region = models.CharField(max_length=150, verbose_name='Регион')
-    description = models.TextField()
+    description = models.TextField(verbose_name='Информация')
     preview = models.ImageField(upload_to=path_to_directory, verbose_name='Фото')
     #slogan = models.ForeignKey('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
     #preview_text = models.CharField(max_length=100)
@@ -27,7 +27,6 @@ class Candidate(models.Model):
     slogan = models.OneToOneField('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
     support_count = models.IntegerField(default=0, verbose_name='Поддерживают')  # для прибавления к значению будет candidate.support_count = F('support_count') + 1
     creator = models.ForeignKey('MyUser', on_delete=models.CASCADE, verbose_name='Выдвиженец', null=True)
-
 
     class Meta:
         verbose_name = 'Кандидат'
@@ -37,7 +36,7 @@ class Candidate(models.Model):
     def __str__(self):
         return self.first_name + " " + self.last_name
 
-    def  get_absolute_url(self):
+    def get_absolute_url(self):
         return reverse('candidate', kwargs={'pk': self.pk})
 
 
@@ -70,5 +69,6 @@ class Batch(models.Model):
 class MyUser(User):
     nick_name = models.CharField(max_length=30)
     photo = models.ImageField(upload_to=user_path_to_directory, verbose_name='Фото')
+    candidates = models.ManyToManyField('Candidate', verbose_name="Кандидаты")
 
 
