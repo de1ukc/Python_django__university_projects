@@ -18,22 +18,26 @@
             <span>Выдвиженец: {{ candidate_prof.creator }}</span>
             <span>Поддерживают: {{ candidate_prof.support_count }}</span>
             <p>Информация:
-            {{ candidate_prof.description }}
+                {{ candidate_prof.description }}
             </p>
 
             <div class="flex-row">
-              <form action="" method="post" enctype="multipart/form-data">
-                  {% csrf_token %}
+                <form action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
 
-                  {% if not flag_user %}
-                  <button style="width: 200px; height: 42.5px; margin: 5px " type="submit" class="btn-dark ">Поддержать</button>
-                   {% endif %}
+                    {% if not flag_user %}
+                        <button style="width: 200px; height: 42.5px; margin: 5px " type="submit" class="btn-dark ">
+                            Поддержать
+                        </button>
+                    {% endif %}
 
-                  {% if user.username == candidate_prof.creator.username %}
-                  <a href="{% url 'update_candidate' candidate_prof.pk %}"  style="width: 200px; margin: 5px " class="btn btn-dark">Редактировать</a>
-                  <a href="{% url 'delete_candidate' candidate_prof.pk %}"  style="width: 200px; margin: 5px " class="btn btn-dark">Удалить</a>
-                  {% endif %}
-              </form>
+                    {% if user.username == candidate_prof.creator.username %}
+                        <a href="{% url 'update_candidate' candidate_prof.pk %}" style="width: 200px; margin: 5px "
+                           class="btn btn-dark">Редактировать</a>
+                        <a href="{% url 'delete_candidate' candidate_prof.pk %}" style="width: 200px; margin: 5px "
+                           class="btn btn-dark">Удалить</a>
+                    {% endif %}
+                </form>
             </div>
         </div>
         <button style="position: fixed; bottom: 10px; right: 10px;" class="btn btn-dark">Похуй</button>

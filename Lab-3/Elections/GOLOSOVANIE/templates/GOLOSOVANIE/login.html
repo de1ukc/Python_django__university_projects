@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
-    <p align="center">
-        <img src="{{ home_page.login_img.url }}" width="300px" height="300px">
-    </p>
+    <form method="post">
+        <p align="center">
+            <img src="{{ home_page.login_img.url }}" width="300px" height="300px">
+        </p>
         {% csrf_token %}
         {{ form.as_p }}
 
@@ -16,4 +16,4 @@
         <small id="buttonHelp" class="form-text text-muted">Значит, ты выбрал смерть...</small>
     </form>
 
-  {% endblock %}
+{% endblock %}

@@ -6,7 +6,7 @@
 
 {% block content %}
     <form method="post">
-         {% csrf_token %}
+        {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn-dark btn-primary">Зарегистрировать смельчака</button>
         <small id="buttonHelp" class="form-text text-muted">Не лезь сюда, потом изобьют на Окрестино!</small>

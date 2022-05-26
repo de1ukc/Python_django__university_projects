@@ -10,15 +10,15 @@
 
 
 {% block content %}
-    <link rel="stylesheet" href="{% static 'css/GOLOSOVANIE/update_style.css'  %}">
+    <link rel="stylesheet" href="{% static 'css/GOLOSOVANIE/update_style.css' %}">
 
-<form action="" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.non_field.errors }}
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field.errors }}
 
-    {{ form.as_p }}  <!-- рендер формы, при условии, что она настроена в файле forms -->
+        {{ form.as_p }}  <!-- рендер формы, при условии, что она настроена в файле forms -->
 
-    <button type="submit" class="btn-dark btn-primary">Внести правки</button>
-    <small id="buttonHelp" class="form-text text-muted">Это бессмысленно</small>
-</form>
+        <button type="submit" class="btn-dark btn-primary">Внести правки</button>
+        <small id="buttonHelp" class="form-text text-muted">Это бессмысленно</small>
+    </form>
 {% endblock %}

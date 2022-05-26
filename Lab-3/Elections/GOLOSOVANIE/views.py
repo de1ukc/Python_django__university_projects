@@ -75,7 +75,8 @@ class CandidateProfile(View):
     def post(self, request, pk):
         cand = Candidate.objects.get(pk=pk)
         cand.support_count = F('support_count') + 1
-        cand.myuser_set.add(cand.creator)
+        usr = MyUser.objects.get(username=request.user.username)
+        cand.myuser_set.add(usr)
         cand.save()
         return HttpResponseRedirect(reverse('candidate', args=(pk,)))
 

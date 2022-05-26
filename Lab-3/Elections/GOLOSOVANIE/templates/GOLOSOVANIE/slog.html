@@ -8,11 +8,11 @@
 
 
 {% block content %}
-<form action="{% url 'add_slogan' %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-   Для начала придумайте слоган вашему кандидату!
-    {{ form.as_p }}
-<button type="submit" class="btn-dark btn-primary">Записать слова мудреца</button>
+    <form action="{% url 'add_slogan' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        Для начала придумайте слоган вашему кандидату!
+        {{ form.as_p }}
+        <button type="submit" class="btn-dark btn-primary">Записать слова мудреца</button>
 
-</form>
+    </form>
 {% endblock %}
