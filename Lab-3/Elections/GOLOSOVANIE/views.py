@@ -16,7 +16,7 @@ class CandidateList(ListView):
     model = Candidate
     template_name = 'GOLOSOVANIE/elections.html'
     context_object_name = 'candidates'
-    paginate_by = 4
+    paginate_by = 10
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -192,3 +192,7 @@ class DeleteCandidate(DeleteView):
     model = Candidate
     success_url = reverse_lazy('elections')
     template_name = 'GOLOSOVANIE/delete_candidate.html'
+
+
+class SearchCandidate(View):
+    template_view = 'GOLOSOVANIE/search_candidate.html'

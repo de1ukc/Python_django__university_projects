@@ -6,42 +6,49 @@
     {% include 'inc/_navbar.html' %}
 {% endblock %}
 
-{% block sidebar %}
-    {% include 'inc/_sidebar.html' %}
-{% endblock %}
+
+<div class="col">
+    {% block sidebar %}
+        {% include 'inc/_sidebar.html' %}
+    {% endblock %}
+</div>
 
 {% block content %}
-    <div class="flex-row" align="center">
-        {% for candidate in candidates %}
-            <div class="card m-2" style="max-width: 540px;">
-                <div class="row no-gutters">
-                    <div class="col-md-4 mt-2 mb-2 ">
-                        <img src="{{ candidate.preview.url }}" alt="..." width="190" height="250">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body" align="center">
-                            <h5 class="card-title"
-                                align="center">{{ candidate.first_name }} {{ candidate.last_name }}</h5>
-                            <p class="card-text" align="center">{{ candidate.slogan }}</p>
-                            {% if candidate.batch.id != 1 %}
-                                <p class="card-text" align="center">Партия: {{ candidate.batch }}</p>
-                            {% else %}
-                                <p class="card-text" align="center">Самовыдвиженец</p>
-                            {% endif %}
-                            <p class="card-text"><small
-                                    class="text-muted">Поддерживают {{ candidate.support_count }}</small></p>
-                            <a href="{{ candidate.get_absolute_url }}" class="btn btn-dark">Подробнее</a>
+    <div class="col">
+        <div class="row">
+            {% for candidate in candidates %}
+                <div class="card m-2" style="width: 540px; height: 300px">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 mt-2 mb-2 ">
+                            <img src="{{ candidate.preview.url }}" alt="..." width="190" height="250">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body" align="center">
+                                <h5 class="card-title"
+                                    align="center">{{ candidate.first_name }} {{ candidate.last_name }}</h5>
+                                <p class="card-text" align="center">{{ candidate.slogan }}</p>
+                                {% if candidate.batch.id != 1 %}
+                                    <p class="card-text" align="center">Партия: {{ candidate.batch }}</p>
+                                {% else %}
+                                    <p class="card-text" align="center">Самовыдвиженец</p>
+                                {% endif %}
+                                <p class="card-text"><small
+                                        class="text-muted">Поддерживают {{ candidate.support_count }}</small></p>
+                                <a href="{{ candidate.get_absolute_url }}" class="btn btn-dark">Подробнее</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
-    </div>
+
+
 {% endblock %}
 
+
 {% block pagination %}
-    <div class="row ml-2">
+    <div class="row">
         {% include 'inc/_pagination.html' %}
     </div>
 {% endblock %}

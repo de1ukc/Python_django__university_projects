@@ -14,5 +14,6 @@ urlpatterns = [
     path('my-candidates/', views.MyCandidates.as_view(), name='my_candidates'),
     path('update-candidate/<int:pk>', views.UpdateCandidate.as_view(), name='update_candidate'),
     path('delete-candidate/<int:pk>', views.DeleteCandidate.as_view(), name='delete_candidate'),
+    #path('search-candidate/<str:last_name>', views.SearchCandidate.as_view(), 'search_candidate'),
 
 ]
