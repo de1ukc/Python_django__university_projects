@@ -10,6 +10,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 #from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import login, logout
+import logging
+logger = logging.getLogger("main_logger")
+logger.setLevel(logging.DEBUG)
 
 
 class CandidateList(ListView):
@@ -17,6 +20,8 @@ class CandidateList(ListView):
     template_name = 'GOLOSOVANIE/elections.html'
     context_object_name = 'candidates'
     paginate_by = 10
+
+    logger.info("Engage CandidateList")
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,6 +35,8 @@ class CandidateList(ListView):
 
 class MyCandidates(View):
     template_name = 'GOLOSOVANIE/my_candidates.html'
+
+    logger.info("Engage MyCandidates")
 
     def get(self, request):
         candidates = Candidate.objects.filter(creator__username=request.user.username)\
@@ -45,6 +52,8 @@ class MyCandidates(View):
 class CandidateByBatch(CandidateList):
     template_name = 'GOLOSOVANIE/batch.html'
 
+    logger.info("Engage CandidateByBatch")
+
     def get_queryset(self):
         return Candidate.objects.filter(batch_id=self.kwargs['batch_id']).select_related('batch', 'slogan')
     #  select_related используется для оптимизации запросов. Он жадный, то есть заставляет запрос выполниться
@@ -53,6 +62,8 @@ class CandidateByBatch(CandidateList):
 
 class CandidateProfile(View):
     template_name = 'GOLOSOVANIE/candidate.html'
+
+    logger.info("Engage CandidateProfile")
 
     def get(self, request, pk):
         candidate = Candidate.objects.get(pk=pk)
@@ -86,6 +97,7 @@ class UpdateCandidate(UpdateView):
     fields = ['first_name', 'last_name', 'middle_name', 'date_of_birth', 'region', 'description', 'preview']
     template_name = 'GOLOSOVANIE/update_candidate.html'
     success_url = reverse_lazy('elections')
+    logger.info("Engage UpdateCandidate")
 
 
 class CreateCandidate(LoginRequiredMixin, CreateView):
@@ -94,11 +106,13 @@ class CreateCandidate(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('elections')
     login_url = '/login/'  # сделать страницу регистрирования
     context_object_name = 'candidate'
+    logger.info("CreateCandidate")
 
 
 class AddSlogan(View):
     template_name = 'GOLOSOVANIE/slog.html'
     next_template = 'GOLOSOVANIE/add_candidate'
+    logger.info("Engage AddSlogan")
 
     def get(self, request):
         context = {
@@ -115,6 +129,7 @@ class AddSlogan(View):
 
 class Index(View):
     template_name = 'GOLOSOVANIE/index.html'
+    logger.info("Engage Index")
 
     def get(self, request):
         home_page = StartPage.objects.first()
@@ -128,6 +143,7 @@ class Index(View):
 
 class UserRegistry(View):
     template_name = 'GOLOSOVANIE/register.html'
+    logger.info("Engage UserRegistry")
 
     def get(self, request):
         context = {
@@ -155,6 +171,7 @@ class UserRegistry(View):
 
 class UserLogin(View):
     template_name = 'GOLOSOVANIE/login.html'
+    logger.info("Engage UserLogin")
 
     def get(self, request):
         context = {
@@ -183,6 +200,8 @@ class UserLogin(View):
 
 
 class UserLogout(View):
+    logger.info("Engage UserLogout")
+
     def get(self, request):
         logout(request)
         return redirect('index')
@@ -192,7 +211,20 @@ class DeleteCandidate(DeleteView):
     model = Candidate
     success_url = reverse_lazy('elections')
     template_name = 'GOLOSOVANIE/delete_candidate.html'
+    logger.info("Engage DeleteCandidate")
 
 
-class SearchCandidate(View):
-    template_view = 'GOLOSOVANIE/search_candidate.html'
+# class SearchCandidate(View):
+#     template_view = 'GOLOSOVANIE/search_candidate.html'
+#     logger.info("Engage SearchCandidate")
+#
+#     def get(self, request):
+#
+#         context = {
+#
+#         }
+#
+#         return render(request, self.template_view, context)
+#
+
+

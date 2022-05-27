@@ -1,5 +1,5 @@
 from django.db import models
-from .services import path_to_directory, user_path_to_directory  # какого хуя это не работает ни при Elections.GOLOSOVANIE.services ни просто from services
+from .services import path_to_directory, user_path_to_directory
 from django.urls import reverse
 from django.contrib.auth.models import User
 

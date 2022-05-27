@@ -26,9 +26,11 @@
                     {% csrf_token %}
 
                     {% if not flag_user %}
+                        {% if request.user.is_authenticated  %}
                         <button style="width: 200px; height: 42.5px; margin: 5px " type="submit" class="btn-dark ">
                             Поддержать
                         </button>
+                            {% endif %}
                     {% endif %}
 
                     {% if user.username == candidate_prof.creator.username %}

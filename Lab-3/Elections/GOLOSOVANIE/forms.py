@@ -5,13 +5,6 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 
 class CandidateForm(forms.ModelForm):
 
-    # slogan2 = forms.CharField(max_length=100, label='Слоган', widget=forms.TextInput(
-    #     attrs={
-    #         'class': 'form-control',
-    #     }
-    # ))
-    #
-
     class Meta:
         model = Candidate
 
