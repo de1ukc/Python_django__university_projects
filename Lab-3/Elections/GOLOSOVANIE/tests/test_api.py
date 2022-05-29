@@ -1,7 +1,6 @@
 from rest_framework.test import APITestCase
 import rest_framework.status as status
-import unittest
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 
 
 class GolosovanieApiTestCase(APITestCase):
@@ -60,7 +59,9 @@ class GolosovanieApiTestCase(APITestCase):
 
     def test_login_post(self):
         url = reverse_lazy('login')
+       # self.client.User.create({'username': 'Kolya', 'password': 'kaba_baba'})
         code = self.client.post(url, {'id_username': 'Kolya', 'id_password': 'kaba_baba'}).status_code
+        self.client.login(username='Kolya', password='kaba_baba')
         self.assertEqual(status.HTTP_200_OK, code)
 
     def test_add_slogan_get(self):

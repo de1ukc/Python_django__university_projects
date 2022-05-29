@@ -7,10 +7,10 @@ from django.views.generic import ListView, DetailView, CreateView, View, UpdateV
 from django.urls import reverse_lazy, reverse
 from django.db.models import Count, F
 from django.contrib.auth.mixins import LoginRequiredMixin
-#from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import login, logout
 import logging
+from .services import MyThread
 logger = logging.getLogger("main_logger")
 logger.setLevel(logging.DEBUG)
 
@@ -75,7 +75,6 @@ class CandidateProfile(View):
             if request.user.username == usr.username:
                 flag_user = True
 
-        print(flag_user)
         context = {
             'candidate_prof': candidate,
             'flag_user': flag_user,
@@ -87,6 +86,19 @@ class CandidateProfile(View):
         cand = Candidate.objects.get(pk=pk)
         cand.support_count = F('support_count') + 1
         usr = MyUser.objects.get(username=request.user.username)
+
+        try:
+            users = MyUser.objects.filter(candidates__in=(cand,))
+            threads = []
+
+            for user in users:
+                thread = MyThread(user.email, 'Your candidate', '{} ({}) has support your candidate'
+                                  .format(usr.username, usr.email))
+                threads.append(thread)
+                thread.start()
+        except:
+            print('Something went wrong... with email')
+
         cand.myuser_set.add(usr)
         cand.save()
         return HttpResponseRedirect(reverse('candidate', args=(pk,)))
@@ -213,18 +225,5 @@ class DeleteCandidate(DeleteView):
     template_name = 'GOLOSOVANIE/delete_candidate.html'
     logger.info("Engage DeleteCandidate")
 
-
-# class SearchCandidate(View):
-#     template_view = 'GOLOSOVANIE/search_candidate.html'
-#     logger.info("Engage SearchCandidate")
-#
-#     def get(self, request):
-#
-#         context = {
-#
-#         }
-#
-#         return render(request, self.template_view, context)
-#
 
 
