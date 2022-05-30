@@ -1,1 +1,8 @@
 {% extends 'GOLOSOVANIE/elections.html' %}
+
+{% block navbar %}
+    {% include 'inc/_navbar.html' %}
+    <div class="text mt-1" align="center">
+        {{ batch.political_views }}
+    </div>
+{% endblock %}

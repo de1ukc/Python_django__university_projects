@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os.path
+import os
 from pathlib import Path
+import django_on_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ld#3=5s96_@_5c#t7^jlf(z3)rtg)e(#hz#(1$u3y7%r)5h9md'
+#SECRET_KEY = 'django-insecure-ld#3=5s96_@_5c#t7^jlf(z3)rtg)e(#hz#(1$u3y7%r)5h9md'
+#SECRET_KEY = 'f3dab680c5ace498897f5cd95206cb781162a16522c7bb47'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['elections-by.herokuapp.com']
 
 
 # Application definition
@@ -189,3 +195,5 @@ LOGGING = {
         'level': 'WARNING',
     }
 }
+
+django_on_heroku.settings(locals())

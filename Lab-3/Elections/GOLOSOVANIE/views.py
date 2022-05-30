@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import loader
 from .models import Candidate, Batch, StartPage, Slogan, MyUser
-from .forms import CandidateForm, UserRegisterForm, UserLoginForm, SloganForm
+from .forms import CandidateForm, UserRegisterForm, UserLoginForm, SloganForm, CreateBatchForm
 from django.views.generic import ListView, DetailView, CreateView, View, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
 from django.db.models import Count, F
@@ -11,11 +11,12 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 import logging
 from .services import MyThread
+
 logger = logging.getLogger("main_logger")
 logger.setLevel(logging.DEBUG)
 
 
-class CandidateList(ListView):
+class CandidateListView(ListView):
     model = Candidate
     template_name = 'GOLOSOVANIE/elections.html'
     context_object_name = 'candidates'
@@ -33,7 +34,7 @@ class CandidateList(ListView):
         return Candidate.objects.all().select_related('batch', 'slogan')
 
 
-class MyCandidates(View):
+class MyCandidatesView(View):
     template_name = 'GOLOSOVANIE/my_candidates.html'
 
     logger.info("Engage MyCandidates")
@@ -49,10 +50,17 @@ class MyCandidates(View):
         return render(request, self.template_name, context)
 
 
-class CandidateByBatch(CandidateList):
+class CandidateByBatchView(CandidateListView):
     template_name = 'GOLOSOVANIE/batch.html'
 
     logger.info("Engage CandidateByBatch")
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['batch'] = Batch.objects.get(
+            id=self.kwargs['batch_id']
+        )
+        return context
 
     def get_queryset(self):
         return Candidate.objects.filter(batch_id=self.kwargs['batch_id']).select_related('batch', 'slogan')
@@ -60,7 +68,7 @@ class CandidateByBatch(CandidateList):
     #  прямо сейчас, а не когда понадобятся данные. Хорош в использовании с ForeignKey
 
 
-class CandidateProfile(View):
+class CandidateProfileView(View):
     template_name = 'GOLOSOVANIE/candidate.html'
 
     logger.info("Engage CandidateProfile")
@@ -104,7 +112,7 @@ class CandidateProfile(View):
         return HttpResponseRedirect(reverse('candidate', args=(pk,)))
 
 
-class UpdateCandidate(UpdateView):
+class UpdateCandidateView(UpdateView):
     model = Candidate
     fields = ['first_name', 'last_name', 'middle_name', 'date_of_birth', 'region', 'description', 'preview']
     template_name = 'GOLOSOVANIE/update_candidate.html'
@@ -112,16 +120,24 @@ class UpdateCandidate(UpdateView):
     logger.info("Engage UpdateCandidate")
 
 
-class CreateCandidate(LoginRequiredMixin, CreateView):
+class CreateCandidateView(LoginRequiredMixin, CreateView):
     form_class = CandidateForm
     template_name = 'GOLOSOVANIE/add_candidate.html'
     success_url = reverse_lazy('elections')
     login_url = '/login/'  # сделать страницу регистрирования
     context_object_name = 'candidate'
-    logger.info("CreateCandidate")
+    logger.info("Create Candidate")
 
 
-class AddSlogan(View):
+class AddBatchView(CreateView):
+    form_class = CreateBatchForm
+    template_name = 'GOLOSOVANIE/add_batch.html'
+    success_url = reverse_lazy('elections')
+    context_object_name = 'batch'
+    logger.info("Create Batch")
+
+
+class AddSloganView(View):
     template_name = 'GOLOSOVANIE/slog.html'
     next_template = 'GOLOSOVANIE/add_candidate'
     logger.info("Engage AddSlogan")
@@ -139,7 +155,7 @@ class AddSlogan(View):
         return redirect('add_candidate')
 
 
-class Index(View):
+class IndexView(View):
     template_name = 'GOLOSOVANIE/index.html'
     logger.info("Engage Index")
 
@@ -153,7 +169,7 @@ class Index(View):
         return render(request, self.template_name, context)
 
 
-class UserRegistry(View):
+class UserRegistryView(View):
     template_name = 'GOLOSOVANIE/register.html'
     logger.info("Engage UserRegistry")
 
@@ -181,7 +197,7 @@ class UserRegistry(View):
         return render(request, self.template_name, context)
 
 
-class UserLogin(View):
+class UserLoginView(View):
     template_name = 'GOLOSOVANIE/login.html'
     logger.info("Engage UserLogin")
 
@@ -211,7 +227,7 @@ class UserLogin(View):
         return render(request, self.template_name, context)
 
 
-class UserLogout(View):
+class UserLogoutView(View):
     logger.info("Engage UserLogout")
 
     def get(self, request):
@@ -219,7 +235,7 @@ class UserLogout(View):
         return redirect('index')
 
 
-class DeleteCandidate(DeleteView):
+class DeleteCandidateView(DeleteView):
     model = Candidate
     success_url = reverse_lazy('elections')
     template_name = 'GOLOSOVANIE/delete_candidate.html'

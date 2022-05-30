@@ -18,7 +18,7 @@
             <span>Выдвиженец: {{ candidate_prof.creator }}</span>
             <span>Поддерживают: {{ candidate_prof.support_count }}</span>
             <p>Информация:
-                {{ candidate_prof.description }}
+                {{ candidate_prof.description|linebreaks }}
             </p>
 
             <div class="flex-row">

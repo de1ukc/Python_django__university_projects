@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+
+{% block navbar %}
+    {% include 'inc/_navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <form action="{% url 'add_batch' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field.errors }}
+
+        {{ form.as_p }}  <!-- рендер формы, при условии, что она настроена в файле forms -->
+
+        <button type="submit" class="btn-dark btn-primary">Зарегистрировать партию</button>
+        <small id="buttonHelp" class="form-text text-muted">Это вообще ни на что не влияет</small>
+    </form>
+{% endblock %}

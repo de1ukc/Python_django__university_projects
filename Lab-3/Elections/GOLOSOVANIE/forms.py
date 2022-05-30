@@ -4,7 +4,6 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 
 
 class CandidateForm(forms.ModelForm):
-
     class Meta:
         model = Candidate
 
@@ -25,8 +24,8 @@ class CandidateForm(forms.ModelForm):
             }),
 
             'date_of_birth': forms.DateInput(attrs={
-                 'class': 'date',
-                 'placeholder': 'D.M.YYYY',
+                'class': 'date',
+                'placeholder': 'D.M.YYYY',
             }),
 
             'region': forms.TextInput(attrs={
@@ -51,6 +50,24 @@ class CandidateForm(forms.ModelForm):
             }),
         }
 
+
+class CreateBatchForm(forms.ModelForm):
+    class Meta:
+        model = Batch
+
+        fields = ['name', 'political_views']
+
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+
+            'political_views': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+        }
+
+
 class SloganForm(forms.ModelForm):
     class Meta:
         model = Slogan
@@ -66,16 +83,16 @@ class SloganForm(forms.ModelForm):
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(label='E-mail', widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-        }
+        'class': 'form-control',
+    }
     ))
 
     username = forms.CharField(max_length=30, label='Имя пользователя', help_text="Имя должно быть на английском",
                                widget=forms.TextInput(
-        attrs={
-            'class': 'form-control',
-        }
-    ))
+                                   attrs={
+                                       'class': 'form-control',
+                                   }
+                               ))
 
     nick_name = forms.CharField(max_length=30, label='Ник', widget=forms.TextInput(
         attrs={
@@ -102,11 +119,11 @@ class UserRegisterForm(UserCreationForm):
 
 class UserLoginForm(AuthenticationForm):
     username = forms.CharField(max_length=30, label='Имя пользователя', help_text="Имя должно быть на английском",
-                              widget=forms.TextInput(
-                                  attrs={
-                                      'class': 'form-control',
-                                  }
-                              ))
+                               widget=forms.TextInput(
+                                   attrs={
+                                       'class': 'form-control',
+                                   }
+                               ))
 
     password = forms.CharField(max_length=30, label='Пароль', widget=forms.PasswordInput(
         attrs={
