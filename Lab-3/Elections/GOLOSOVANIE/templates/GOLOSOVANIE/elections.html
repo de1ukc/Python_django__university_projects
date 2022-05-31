@@ -24,7 +24,7 @@
                                 <h5 class="card-title"
                                     align="center">{{ candidate.first_name }} {{ candidate.last_name }}</h5>
                                 <p class="card-text" align="center">{{ candidate.slogan }}</p>
-                                {% if candidate.batch.id != 3 %}
+                                {% if candidate.batch.name != 'Самовыдвиженец' %}
                                     <p class="card-text" align="center">Партия: {{ candidate.batch }}</p>
                                 {% else %}
                                     <p class="card-text" align="center">Самовыдвиженец</p>

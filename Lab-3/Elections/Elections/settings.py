@@ -23,15 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 #SECRET_KEY = 'django-insecure-ld#3=5s96_@_5c#t7^jlf(z3)rtg)e(#hz#(1$u3y7%r)5h9md'
-#SECRET_KEY = 'f3dab680c5ace498897f5cd95206cb781162a16522c7bb47'
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'f3dab680c5ace498897f5cd95206cb781162a16522c7bb47'
+#SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
 
-
-ALLOWED_HOSTS = ['elections-by.herokuapp.com']
+ALLOWED_HOSTS = ['elections-by.herokuapp.com', '0.0.0.0:8000']
 
 
 # Application definition
@@ -87,10 +86,10 @@ DATABASES = {
 #       'ENGINE': 'django.db.backends.sqlite3',
 #       'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'elec',
-        'USER': 'oleg',
-        'PASSWORD': 'oleg',
-        'HOST': 'localhost',
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'db',
         'PORT': '5432',
     }
 
@@ -130,7 +129,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # для реального сервера, чтоб собрать всю статику приложений в одну папку
 STATICFILES_DIRS = [  # дополнительные папки со статикой
     os.path.join(BASE_DIR, 'Elections/static'),
