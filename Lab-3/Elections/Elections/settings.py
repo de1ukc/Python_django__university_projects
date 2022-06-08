@@ -14,24 +14,26 @@ import os
 from pathlib import Path
 import django_on_heroku
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'django-insecure-ld#3=5s96_@_5c#t7^jlf(z3)rtg)e(#hz#(1$u3y7%r)5h9md'
+# SECRET_KEY = 'django-insecure-ld#3=5s96_@_5c#t7^jlf(z3)rtg)e(#hz#(1$u3y7%r)5h9md'
 SECRET_KEY = 'f3dab680c5ace498897f5cd95206cb781162a16522c7bb47'
-#SECRET_KEY = os.environ.get('SECRET_KEY')
+# SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
-
+# DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
+DEBUG = True
 ALLOWED_HOSTS = ['elections-by.herokuapp.com', '0.0.0.0:8000']
-
 
 # Application definition
 
@@ -77,19 +79,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Elections.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-#       'ENGINE': 'django.db.backends.sqlite3',
-#       'NAME': BASE_DIR / 'db.sqlite3',
+        #       'ENGINE': 'django.db.backends.sqlite3',
+        #       'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('POSTGRES_NAME'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'db',
+        # 'HOST': 'db',
+        'HOST':'localhost',
         'PORT': '5432',
     }
 
@@ -113,7 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -125,12 +126,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'staticfiles/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # для реального сервера, чтоб собрать всю статику приложений в одну папку
+STATIC_ROOT = os.path.join(BASE_DIR,
+                           'static')  # для реального сервера, чтоб собрать всю статику приложений в одну папку
 STATICFILES_DIRS = [  # дополнительные папки со статикой
     os.path.join(BASE_DIR, 'Elections/static'),
 ]
@@ -143,11 +144,9 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 INTERNAL_IPS = [  # для DDT
     "127.0.0.1",
 ]
-
 
 LOGGING = {
     'version': 1,
@@ -196,3 +195,10 @@ LOGGING = {
 }
 
 django_on_heroku.settings(locals())
+
+cloudinary.config(
+    cloud_name="df6q45grj",
+    api_key="222126747932176",
+    api_secret="1-W-BqWgcSnURywke0coOnR_nVY",
+    secure=True
+)
