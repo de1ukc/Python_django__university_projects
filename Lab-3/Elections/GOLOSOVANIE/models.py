@@ -1,12 +1,17 @@
 from django.db import models
-from .services import path_to_directory, user_path_to_directory
+from .services import path_to_directory, user_path_to_directory, path_to_directory_cloudinary
 from django.urls import reverse
 from django.contrib.auth.models import User
 
+from django.db import models
+from cloudinary.models import CloudinaryField
+
 
 class StartPage(models.Model):
-    img = models.ImageField(upload_to='photos/Start_Page/')
-    login_img = models.ImageField(upload_to='photos/login_page/', null=True)
+    # img = models.ImageField(upload_to='photos/Start_Page/')
+    img = CloudinaryField('image', null=True, overwrite=True, folder='elections/StartPage')
+    # login_img = models.ImageField(upload_to='photos/login_page/', null=True)
+    login_img = CloudinaryField('image', null=True, overwrite=True, folder='elections/LoginPage')
 
     class Meta:
         verbose_name = 'Стартовая страница'
@@ -20,12 +25,19 @@ class Candidate(models.Model):
     date_of_birth = models.DateField(verbose_name='Дата рождения')
     region = models.CharField(max_length=150, verbose_name='Регион')
     description = models.TextField(verbose_name='Информация')
-    preview = models.ImageField(upload_to=path_to_directory, verbose_name='Фото')
-    #slogan = models.ForeignKey('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
-    #preview_text = models.CharField(max_length=100)
-    batch = models.ForeignKey('Batch', on_delete=models.CASCADE, verbose_name='Партия', default=4, blank=True) # многие к одному, в параметры передаётся именно то, чего будет 1 штука
+    # preview = models.ImageField(upload_to=path_to_directory, verbose_name='Фото')
+    preview = CloudinaryField('image',
+                              null=True,
+                              overwrite=True,
+                              folder='elections/candidates'
+                              )
+    # slogan = models.ForeignKey('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
+    # preview_text = models.CharField(max_length=100)
+    batch = models.ForeignKey('Batch', on_delete=models.CASCADE, verbose_name='Партия', default=4,
+                              blank=True)  # многие к одному, в параметры передаётся именно то, чего будет 1 штука
     slogan = models.OneToOneField('Slogan', on_delete=models.PROTECT, verbose_name='Слоган', null=True)
-    support_count = models.IntegerField(default=0, verbose_name='Поддерживают')  # для прибавления к значению будет candidate.support_count = F('support_count') + 1
+    support_count = models.IntegerField(default=0,
+                                        verbose_name='Поддерживают')  # для прибавления к значению будет candidate.support_count = F('support_count') + 1
     creator = models.ForeignKey('MyUser', on_delete=models.CASCADE, verbose_name='Выдвиженец', null=True)
 
     class Meta:
@@ -70,5 +82,3 @@ class MyUser(User):
     nick_name = models.CharField(max_length=30)
     photo = models.ImageField(upload_to=user_path_to_directory, verbose_name='Фото')
     candidates = models.ManyToManyField('Candidate', verbose_name="Кандидаты")
-
-
