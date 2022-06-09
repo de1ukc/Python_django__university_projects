@@ -38,6 +38,9 @@
                 </div>
             {% endfor %}
         </div>
+        <div align="center" style="width: 1100px; display: flex; justify-content: center;">
+            {% include 'inc/_pagination.html' %}
+        </div>
     </div>
 
 
@@ -45,8 +48,6 @@
 
 
 {% block pagination %}
-    <div class="row">
-        {% include 'inc/_pagination.html' %}
-    </div>
+
 {% endblock %}
 
